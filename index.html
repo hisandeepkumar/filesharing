@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local File Share</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/simple-peer/9.11.0/simplepeer.min.js"></script>
+    <style>
+        :root {
+            --primary: #2196F3;
+            --secondary: #607D8B;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .role-selector {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .btn {
+            border: none;
+            padding: 15px 30px;
+            margin: 10px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: 0.3s;
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0,0,0,0.2);
+        }
+
+        #status {
+            text-align: center;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 10px;
+            background: #e3f2fd;
+            color: var(--primary);
+        }
+
+        .progress-container {
+            margin: 20px 0;
+            background: #eee;
+            border-radius: 10px;
+            height: 20px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #fileInput {
+            margin: 20px 0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="role-selector">
+        <button class="btn" onclick="initSender()">Sender</button>
+        <button class="btn" onclick="initReceiver()">Receiver</button>
+    </div>
+
+    <div id="codeDisplay" class="hidden"></div>
+    <div id="inputCodeContainer" class="hidden">
+        <input type="text" id="connectCode" placeholder="Enter Code">
+        <button class="btn" onclick="connectToSender()">Connect</button>
+    </div>
+    <div id="status">Disconnected</div>
+
+    <div id="fileInput" class="hidden">
+        <input type="file" onchange="sendFile(this.files[0])">
+        <div class="progress-container">
+            <div class="progress-bar" style="width: 0%"></div>
+        </div>
+    </div>
+
+    <script>
+        let peer = null;
+        let connectionCode = null;
+        let connections = {};
+
+        function generateCode() {
+            return Math.floor(1000 + Math.random() * 9000).toString(); // 4-digit random code
+        }
+
+        async function initSender() {
+            connectionCode = generateCode();
+            connections[connectionCode] = null; // Store pending connection
+            document.getElementById('codeDisplay').innerText = `Share this code: ${connectionCode}`;
+            document.getElementById('codeDisplay').classList.remove('hidden');
+            document.getElementById('fileInput').classList.remove('hidden');
+            setupPeer(true);
+        }
+
+        async function initReceiver() {
+            document.getElementById('inputCodeContainer').classList.remove('hidden');
+        }
+
+        function connectToSender() {
+            const enteredCode = document.getElementById('connectCode').value;
+            if (connections[enteredCode] !== undefined) {
+                connectionCode = enteredCode;
+                setupPeer(false);
+            } else {
+                alert("Invalid code! Make sure sender is active.");
+            }
+        }
+
+        function setupPeer(isInitiator) {
+            peer = new SimplePeer({ initiator: isInitiator, trickle: false });
+
+            peer.on('signal', data => {
+                if (isInitiator) {
+                    connections[connectionCode] = data; // Store sender's signal
+                } else {
+                    peer.signal(connections[connectionCode]); // Receiver connects
+                }
+            });
+
+            peer.on('connect', () => {
+                updateStatus("Connected!");
+            });
+
+            peer.on('data', handleData);
+        }
+
+        function updateStatus(text) {
+            document.getElementById('status').textContent = text;
+        }
+
+        let receivedBuffers = [];
+        let currentFile = null;
+
+        async function sendFile(file) {
+            const reader = new FileReader();
+            reader.onload = function() {
+                const buffer = new Uint8Array(this.result);
+                peer.send(JSON.stringify({ type: 'file-start', name: file.name, size: file.size }));
+
+                let offset = 0;
+                const chunkSize = 16384;
+
+                function sendChunk() {
+                    const chunk = buffer.slice(offset, offset + chunkSize);
+                    peer.send(chunk);
+                    offset += chunk.byteLength;
+                    updateProgress((offset / file.size) * 100);
+
+                    if (offset < file.size) {
+                        setTimeout(sendChunk, 0);
+                    }
+                }
+
+                sendChunk();
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function handleData(data) {
+            if (typeof data === 'string') {
+                try {
+                    const meta = JSON.parse(data);
+                    if (meta.type === 'file-start') {
+                        currentFile = {
+                            name: meta.name,
+                            size: meta.size,
+                            received: 0,
+                            buffers: []
+                        };
+                    }
+                } catch(e) {}
+                return;
+            }
+
+            if (currentFile) {
+                currentFile.buffers.push(data);
+                currentFile.received += data.byteLength;
+                updateProgress((currentFile.received / currentFile.size) * 100);
+
+                if (currentFile.received >= currentFile.size) {
+                    const file = new Blob(currentFile.buffers, { type: 'application/octet-stream' });
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(file);
+                    link.download = currentFile.name;
+                    link.click();
+                    currentFile = null;
+                }
+            }
+        }
+
+        function updateProgress(percentage) {
+            document.querySelector('.progress-bar').style.width = percentage + '%';
+        }
+    </script>
+</body>
+</html>
