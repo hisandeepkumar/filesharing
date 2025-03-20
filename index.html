@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Local File Share</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/simple-peer/9.11.0/simplepeer.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/instascan/1.0.0/instascan.min.js"></script>
     <style>
         :root {
             --primary: #2196F3;
@@ -38,6 +40,21 @@
         .btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 8px rgba(0,0,0,0.2);
+        }
+
+        #qrcode {
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        #videoContainer {
+            margin: 20px auto;
+            max-width: 400px;
+            border-radius: 20px;
+            overflow: hidden;
         }
 
         #status {
@@ -79,11 +96,8 @@
         <button class="btn" onclick="initReceiver()">Receiver</button>
     </div>
 
-    <div id="codeDisplay" class="hidden"></div>
-    <div id="inputCodeContainer" class="hidden">
-        <input type="text" id="connectCode" placeholder="Enter Code">
-        <button class="btn" onclick="connectToSender()">Connect</button>
-    </div>
+    <div id="qrcode" class="hidden"></div>
+    <div id="videoContainer" class="hidden"></div>
     <div id="status">Disconnected</div>
 
     <div id="fileInput" class="hidden">
@@ -95,52 +109,79 @@
 
     <script>
         let peer = null;
-        let connectionCode = null;
-        let connections = {};
-
-        function generateCode() {
-            return Math.floor(1000 + Math.random() * 9000).toString(); // 4-digit random code
-        }
+        let scanner = null;
+        let currentRole = null;
+        const video = document.createElement('video');
 
         async function initSender() {
-            connectionCode = generateCode();
-            connections[connectionCode] = null; // Store pending connection
-            document.getElementById('codeDisplay').innerText = `Share this code: ${connectionCode}`;
-            document.getElementById('codeDisplay').classList.remove('hidden');
+            currentRole = 'sender';
             document.getElementById('fileInput').classList.remove('hidden');
             setupPeer(true);
         }
 
         async function initReceiver() {
-            document.getElementById('inputCodeContainer').classList.remove('hidden');
-        }
-
-        function connectToSender() {
-            const enteredCode = document.getElementById('connectCode').value;
-            if (connections[enteredCode] !== undefined) {
-                connectionCode = enteredCode;
-                setupPeer(false);
-            } else {
-                alert("Invalid code! Make sure sender is active.");
-            }
+            currentRole = 'receiver';
+            setupVideo();
+            setupPeer(false);
         }
 
         function setupPeer(isInitiator) {
-            peer = new SimplePeer({ initiator: isInitiator, trickle: false });
+            peer = new SimplePeer({
+                initiator: isInitiator,
+                trickle: false
+            });
 
             peer.on('signal', data => {
-                if (isInitiator) {
-                    connections[connectionCode] = data; // Store sender's signal
-                } else {
-                    peer.signal(connections[connectionCode]); // Receiver connects
+                if (isInitiator && data.type === 'offer') {
+                    showQR(JSON.stringify(data));
                 }
             });
 
             peer.on('connect', () => {
-                updateStatus("Connected!");
+                updateStatus(`Connected to ${peer._remoteName}`);
             });
 
             peer.on('data', handleData);
+        }
+
+        function showQR(data) {
+            const qrDiv = document.getElementById('qrcode');
+            qrDiv.innerHTML = '';
+            new QRCode(qrDiv, {
+                text: data,
+                width: 200,
+                height: 200
+            });
+            qrDiv.classList.remove('hidden');
+        }
+
+        function setupVideo() {
+            const videoContainer = document.getElementById('videoContainer');
+            videoContainer.appendChild(video);
+            videoContainer.classList.remove('hidden');
+
+            scanner = new Instascan.Scanner({ video });
+            scanner.addListener('scan', content => {
+                try {
+                    const signal = JSON.parse(content);
+                    if (signal.type === 'offer') {
+                        peer.signal(signal);
+                        peer.on('signal', answer => {
+                            showQR(JSON.stringify(answer));
+                        });
+                    } else if (signal.type === 'answer') {
+                        peer.signal(signal);
+                    }
+                } catch (e) {
+                    console.error('Invalid QR code');
+                }
+            });
+
+            Instascan.Camera.getCameras().then(cameras => {
+                if (cameras.length > 0) {
+                    scanner.start(cameras[0]);
+                }
+            });
         }
 
         function updateStatus(text) {
@@ -154,22 +195,26 @@
             const reader = new FileReader();
             reader.onload = function() {
                 const buffer = new Uint8Array(this.result);
-                peer.send(JSON.stringify({ type: 'file-start', name: file.name, size: file.size }));
-
+                peer.send(JSON.stringify({
+                    type: 'file-start',
+                    name: file.name,
+                    size: file.size
+                }));
+                
                 let offset = 0;
                 const chunkSize = 16384;
-
+                
                 function sendChunk() {
                     const chunk = buffer.slice(offset, offset + chunkSize);
                     peer.send(chunk);
-                    offset += chunk.byteLength;
+                    offset += chunkSize.length;
                     updateProgress((offset / file.size) * 100);
-
+                    
                     if (offset < file.size) {
                         setTimeout(sendChunk, 0);
                     }
                 }
-
+                
                 sendChunk();
             };
             reader.readAsArrayBuffer(file);
