@@ -3,221 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>File Sharing System</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <title>QR WebRTC Signaling</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 20px;
-            background-color: #121212;
-            color: #fff;
-        }
-        button, input {
-            padding: 10px;
-            font-size: 16px;
-            margin: 5px;
-            background-color: #333;
-            color: #fff;
-            border: none;
-            cursor: pointer;
-        }
-        #qrcode, #video {
-            margin: 20px auto;
-        }
-        #video {
-            width: 300px;
-            height: 300px;
-            display: none;
-        }
-        #status { color: #0f0; }
-        #downloadLink { color: #00f; }
+        body { font-family: Arial, sans-serif; text-align: center; background-color: #121212; color: white; }
+        button, input { padding: 10px; font-size: 16px; margin: 5px; background-color: #333; color: #fff; border: none; cursor: pointer; }
+        canvas { margin-top: 10px; }
     </style>
 </head>
 <body>
-    <h2>File Sharing System</h2>
-    <p><input type="radio" name="role" value="initiator" checked> Initiator  
-       <input type="radio" name="role" value="receiver"> Receiver</p>
-    <button onclick="startConnection()">Generate QR / Scan QR</button>
-    <div id="qrcode"></div>
-    <video id="video"></video>
-    <canvas id="videoCanvas" style="display:none;"></canvas>
+    <h2>WebRTC P2P Connection</h2>
+
+    <button onclick="generateQR()">Generate QR Code</button>
+    <canvas id="qrCanvas"></canvas>
+    
+    <p>Or Paste SDP:</p>
+    <textarea id="sdpInput" rows="5" cols="50" placeholder="Paste scanned SDP here..."></textarea>
+    <button onclick="connectFromSDP()">Connect</button>
+
     <input type="file" id="fileInput">
     <button onclick="sendFile()">Send File</button>
+
     <p id="status"></p>
-    <p>Received File: <a id="downloadLink" style="display:none;" download="received_file">Download</a></p>
+    <p>Received File: <a id="downloadLink" download="received_file">Download</a></p>
 
     <script>
         let peerConnection;
         let dataChannel;
-        let qrData = {};
-        let iceCandidates = [];
 
-        // WebRTC Setup
-        function setupPeerConnection(isInitiator) {
-            const config = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
-            peerConnection = new RTCPeerConnection(config);
+        const rtcConfig = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
 
-            if (isInitiator) {
-                dataChannel = peerConnection.createDataChannel("fileChannel");
-                dataChannel.onopen = () => {
-                    document.getElementById("status").innerText = "Connected! Ready to share files.";
-                };
-                dataChannel.onmessage = (event) => receiveFile(event.data);
-            } else {
-                peerConnection.ondatachannel = (event) => {
-                    dataChannel = event.channel;
-                    dataChannel.onopen = () => {
-                        document.getElementById("status").innerText = "Connected! Ready to share files.";
-                    };
-                    dataChannel.onmessage = (event) => receiveFile(event.data);
-                };
-            }
-
-            peerConnection.onicecandidate = (event) => {
+        function generateQR() {
+            peerConnection = new RTCPeerConnection(rtcConfig);
+            dataChannel = peerConnection.createDataChannel("fileChannel");
+            
+            dataChannel.onopen = () => document.getElementById("status").innerText = "Connected!";
+            dataChannel.onmessage = event => receiveFile(event.data);
+            
+            peerConnection.onicecandidate = event => {
                 if (event.candidate) {
-                    iceCandidates.push(event.candidate);
-                    // QR ko baar-baar update nahi karenge yahan
+                    console.log("ICE candidate:", JSON.stringify(event.candidate));
                 }
             };
-        }
 
-        // Update QR code
-        function updateQRCode() {
-            const qrContainer = document.getElementById("qrcode");
-            qrContainer.innerHTML = "";
-            qrData.iceCandidates = iceCandidates; // ICE candidates add karo
-            new QRCode(qrContainer, {
-                text: JSON.stringify(qrData),
-                width: 200,
-                height: 200
+            peerConnection.createOffer().then(offer => {
+                return peerConnection.setLocalDescription(offer);
+            }).then(() => {
+                let qr = new QRious({
+                    element: document.getElementById("qrCanvas"),
+                    value: JSON.stringify(peerConnection.localDescription),
+                    size: 200
+                });
             });
         }
 
-        // Start connection
-        function startConnection() {
-            const isInitiator = document.querySelector('input[name="role"]:checked').value === "initiator";
-            iceCandidates = []; // Reset ICE candidates
-            qrData = {};
+        function connectFromSDP() {
+            const sdp = JSON.parse(document.getElementById("sdpInput").value);
+            peerConnection = new RTCPeerConnection(rtcConfig);
+            
+            peerConnection.ondatachannel = event => {
+                dataChannel = event.channel;
+                dataChannel.onopen = () => document.getElementById("status").innerText = "Connected!";
+                dataChannel.onmessage = event => receiveFile(event.data);
+            };
 
-            if (!peerConnection) {
-                setupPeerConnection(isInitiator);
-            }
-
-            if (isInitiator) {
-                peerConnection.createOffer()
-                    .then(offer => peerConnection.setLocalDescription(offer))
-                    .then(() => {
-                        qrData = { type: "offer", sdp: peerConnection.localDescription };
-                        setTimeout(() => {
-                            updateQRCode(); // Delay to collect initial ICE candidates
-                            document.getElementById("status").innerText = "Generated QR. Scan it on Receiver.";
-                        }, 1000); // 1 second delay to gather ICE candidates
-                    })
-                    .catch(err => {
-                        document.getElementById("status").innerText = "Error creating offer: " + err.message;
-                    });
-            } else {
-                startScanning();
-            }
+            peerConnection.setRemoteDescription(new RTCSessionDescription(sdp)).then(() => {
+                return peerConnection.createAnswer();
+            }).then(answer => {
+                return peerConnection.setLocalDescription(answer);
+            }).then(() => {
+                console.log("Answer:", JSON.stringify(peerConnection.localDescription));
+            });
         }
 
-        // Start QR scanning
-        function startScanning() {
-            const video = document.getElementById("video");
-            const videoCanvas = document.getElementById("videoCanvas");
-            const ctx = videoCanvas.getContext("2d");
-
-            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
-                .then(stream => {
-                    video.srcObject = stream;
-                    video.play();
-                    video.style.display = "block";
-                    videoCanvas.width = 300;
-                    videoCanvas.height = 300;
-                    document.getElementById("status").innerText = "Scanning QR...";
-                    scanQR(stream);
-                })
-                .catch(err => {
-                    document.getElementById("status").innerText = "Camera Error: " + err.message;
-                });
-
-            function scanQR(stream) {
-                ctx.drawImage(video, 0, 0, videoCanvas.width, videoCanvas.height);
-                const imageData = ctx.getImageData(0, 0, videoCanvas.width, videoCanvas.height);
-                const code = jsQR(imageData.data, imageData.width, imageData.height);
-
-                if (code) {
-                    const data = JSON.parse(code.data);
-                    stream.getTracks().forEach(track => track.stop());
-                    video.style.display = "none";
-
-                    if (data.type === "offer") {
-                        peerConnection.setRemoteDescription(new RTCSessionDescription(data.sdp))
-                            .then(() => peerConnection.createAnswer())
-                            .then(answer => peerConnection.setLocalDescription(answer))
-                            .then(() => {
-                                qrData = { type: "answer", sdp: peerConnection.localDescription };
-                                if (data.iceCandidates) {
-                                    data.iceCandidates.forEach(candidate => 
-                                        peerConnection.addIceCandidate(new RTCIceCandidate(candidate))
-                                    );
-                                }
-                                setTimeout(() => {
-                                    updateQRCode();
-                                    document.getElementById("status").innerText = "Generated Answer QR. Scan it on Initiator.";
-                                }, 1000); // Delay for ICE candidates
-                            })
-                            .catch(err => {
-                                document.getElementById("status").innerText = "Error processing offer: " + err.message;
-                            });
-                    } else if (data.type === "answer") {
-                        peerConnection.setRemoteDescription(new RTCSessionDescription(data.sdp))
-                            .then(() => {
-                                if (data.iceCandidates) {
-                                    data.iceCandidates.forEach(candidate => 
-                                        peerConnection.addIceCandidate(new RTCIceCandidate(candidate))
-                                    );
-                                }
-                            })
-                            .catch(err => {
-                                document.getElementById("status").innerText = "Error processing answer: " + err.message;
-                            });
-                    }
-                } else {
-                    requestAnimationFrame(() => scanQR(stream));
-                }
-            }
-        }
-
-        // Send file
         function sendFile() {
             const file = document.getElementById("fileInput").files[0];
-            if (!file) {
-                alert("Select a file first!");
-                return;
-            }
+            if (!file) return alert("Select a file first!");
+
             const reader = new FileReader();
             reader.onload = () => {
-                if (dataChannel && dataChannel.readyState === "open") {
+                if (dataChannel.readyState === "open") {
                     dataChannel.send(reader.result);
-                    document.getElementById("status").innerText = "File Sent!";
-                } else {
-                    alert("Connection not established yet!");
+                    document.getElementById("status").innerText = "File sent!";
                 }
             };
             reader.readAsArrayBuffer(file);
         }
 
-        // Receive file
         function receiveFile(data) {
             const blob = new Blob([data]);
             const url = URL.createObjectURL(blob);
-            const downloadLink = document.getElementById("downloadLink");
-            downloadLink.href = url;
-            downloadLink.style.display = "inline";
-            document.getElementById("status").innerText = "File Received! Click to download.";
+            const link = document.getElementById("downloadLink");
+            link.href = url;
+            link.style.display = "inline";
+            document.getElementById("status").innerText = "File received!";
         }
     </script>
 </body>
