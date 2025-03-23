@@ -3,157 +3,183 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Code-Based WebRTC Signaling</title>
+    <title>WebRTC File Sharing</title>
+    <script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.2.1/minified/html5-qrcode.min.js"></script>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; background-color: #121212; color: white; }
-        button, input { padding: 10px; font-size: 16px; margin: 5px; background-color: #333; color: #fff; border: none; cursor: pointer; }
-        input { width: 80%; text-align: center; background-color: #222; border: 1px solid #555; color: white; }
-        #fileTransfer { display: none; }
+        body {
+            background-color: #121212;
+            color: white;
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+        input, button {
+            margin: 10px;
+            padding: 10px;
+            border-radius: 20px;
+            border: none;
+            font-size: 16px;
+            text-align: center;
+        }
+        button {
+            cursor: pointer;
+        }
+        .sender-btn { background-color: #007bff; color: white; }
+        .receiver-btn { background-color: #28a745; color: white; }
+        .sender-btn:hover { background-color: #0056b3; }
+        .receiver-btn:hover { background-color: #1e7e34; }
+        #qrcode {
+            margin: 20px auto;
+            padding: 10px; /* ✅ White background */
+            background-color: white;
+            display: inline-block;
+            border-radius: 10px;
+        }
+        #reader {
+            width: 100vw;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #reader video {
+            width: 90%;
+            height: auto;
+            border-radius: 10px;
+        }
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: red;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+        }
     </style>
 </head>
-<body onload="generateOfferCode()">
-    <h2>WebRTC P2P Connection</h2>
+<body>
+    <h1>WebRTC File Sharing</h1>
+    
+    <div id="init">
+        <button class="sender-btn" onclick="startAsSender()">Start as Sender</button>
+        <button class="receiver-btn" onclick="startAsReceiver()">Start as Receiver</button>
+    </div>
 
-    <p><b>Offer Code:</b></p>
-    <input type="text" id="offerCode" readonly>
-    <button onclick="copyOfferCode()">Copy Code</button>
-
-    <p><b>Enter Offer Code:</b></p>
-    <input type="text" id="inputOfferCode" placeholder="Paste Offer Code Here" oninput="generateAnswerCode()">
-
-    <p><b>Answer Code:</b></p>
-    <input type="text" id="answerCode" readonly>
-    <button onclick="copyAnswerCode()">Copy Code</button>
-
-    <p><b>Enter Answer Code:</b></p>
-    <input type="text" id="inputAnswerCode" placeholder="Paste Answer Code Here" oninput="connectWithAnswer()">
-
-    <div id="fileTransfer">
+    <div id="senderUI" style="display: none;">
+        <h2>Sender</h2>
+        <p>Your ID: <span id="senderId">Generating...</span></p>
+        <div id="qrcode"></div>
+        <input type="text" id="receiverId" placeholder="Enter Receiver ID">
+        <button onclick="connectAndSend()">Connect</button>
+        <p id="status">Status: Not Connected</p>
         <input type="file" id="fileInput">
         <button onclick="sendFile()">Send File</button>
     </div>
 
-    <p id="status"></p>
-    <p>Received File: <a id="downloadLink" download="received_file">Download</a></p>
+    <div id="receiverUI" style="display: none;">
+        <h2>Receiver</h2>
+        <input type="text" id="receiverId" value="Scanning..." readonly>
+        <div id="reader" style="display: none;">
+            <button class="close-btn" onclick="stopScanner()">Close</button>
+            <div id="camera"></div>
+        </div>
+        <p id="statusReceiver">Status: Waiting for Connection...</p>
+        <a id="downloadLink" style="display:none">Download File</a>
+    </div>
 
     <script>
-        let peerConnection;
-        let dataChannel;
-        let isConnected = false;
+        let peer, conn, scanner;
 
-        const rtcConfig = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
+        function startAsSender() {
+            document.getElementById("init").style.display = "none";
+            document.getElementById("senderUI").style.display = "block";
 
-        function generateOfferCode() {
-            peerConnection = new RTCPeerConnection(rtcConfig);
-            dataChannel = peerConnection.createDataChannel("fileChannel");
-
-            dataChannel.onopen = () => showFileTransferUI();
-            dataChannel.onmessage = event => receiveFile(event.data);
-
-            peerConnection.createOffer().then(offer => {
-                return peerConnection.setLocalDescription(offer);
-            }).then(() => {
-                document.getElementById("offerCode").value = btoa(JSON.stringify(peerConnection.localDescription));
+            peer = new Peer();
+            peer.on("open", id => {
+                document.getElementById("senderId").innerText = id;
+                new QRCode(document.getElementById("qrcode"), {
+                    text: id,
+                    width: 200,
+                    height: 200,
+                    colorDark: "#000000",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
             });
         }
 
-        function generateAnswerCode() {
-            let encodedOffer = document.getElementById("inputOfferCode").value;
-            if (!encodedOffer) return;
+        function startAsReceiver() {
+            document.getElementById("init").style.display = "none";
+            document.getElementById("receiverUI").style.display = "block";
 
-            let sdp;
-            try {
-                sdp = JSON.parse(atob(encodedOffer));
-            } catch (e) {
-                return;
-            }
+            peer = new Peer();
+            peer.on("open", id => {
+                document.getElementById("receiverId").value = "Waiting for QR Scan...";
+                startScanner(); // ✅ Scanner automatically open hoga
+            });
 
-            peerConnection = new RTCPeerConnection(rtcConfig);
+            peer.on("connection", connection => {
+                conn = connection;
+                conn.on("open", () => {
+                    document.getElementById("statusReceiver").innerText = "Status: Connected";
+                });
 
-            peerConnection.ondatachannel = event => {
-                dataChannel = event.channel;
-                dataChannel.onopen = () => showFileTransferUI();
-                dataChannel.onmessage = event => receiveFile(event.data);
-            };
-
-            peerConnection.setRemoteDescription(new RTCSessionDescription(sdp)).then(() => {
-                return peerConnection.createAnswer();
-            }).then(answer => {
-                return peerConnection.setLocalDescription(answer);
-            }).then(() => {
-                document.getElementById("answerCode").value = btoa(JSON.stringify(peerConnection.localDescription));
+                conn.on("data", file => {
+                    const blob = new Blob([file.data]);
+                    const link = document.getElementById("downloadLink");
+                    link.href = URL.createObjectURL(blob);
+                    link.download = file.name;
+                    link.style.display = "block";
+                    link.innerText = "Download " + file.name;
+                });
             });
         }
 
-        function connectWithAnswer() {
-            if (isConnected) return; // Agar already connected hai to kuch mat karo
-            
-            let encodedAnswer = document.getElementById("inputAnswerCode").value;
-            if (!encodedAnswer) return;
-
-            let sdp;
-            try {
-                sdp = JSON.parse(atob(encodedAnswer));
-            } catch (e) {
-                return;
-            }
-
-            peerConnection.setRemoteDescription(new RTCSessionDescription(sdp)).then(() => {
-                isConnected = true; // Connection establish hone ke baad flag set kar do
-                document.getElementById("status").innerText = "Connected!";
-                navigator.vibrate(500);
-                document.getElementById("fileTransfer").style.display = "block";
-
-                // Dono mobiles me "Connected" show karne ke liye event listener add karo
-                peerConnection.onconnectionstatechange = () => {
-                    if (peerConnection.connectionState === "connected") {
-                        document.getElementById("status").innerText = "Connected!";
-                        navigator.vibrate(500);
-                        document.getElementById("fileTransfer").style.display = "block";
-                    }
-                };
+        function startScanner() {
+            document.getElementById("reader").style.display = "flex"; // ✅ Fullscreen scanner open
+            scanner = new Html5QrcodeScanner("camera", { fps: 10, qrbox: 250 });
+            scanner.render(result => {
+                document.getElementById("receiverId").value = result;
+                stopScanner(); // ✅ Scanner band hote hi auto-connect
+                connectAndSend();
             });
         }
 
-        function copyOfferCode() {
-            let offerCode = document.getElementById("offerCode");
-            offerCode.select();
-            document.execCommand("copy");
+        function stopScanner() {
+            document.getElementById("reader").style.display = "none"; // ✅ Scanner close karega
+            if (scanner) scanner.clear();
         }
 
-        function copyAnswerCode() {
-            let answerCode = document.getElementById("answerCode");
-            answerCode.select();
-            document.execCommand("copy");
-        }
+        function connectAndSend() {
+            const receiverId = document.getElementById("receiverId").value;
+            if (!receiverId || receiverId === "Waiting for QR Scan...") return alert("Scan QR Code First!");
 
-        function showFileTransferUI() {
-            document.getElementById("status").innerText = "Connected!";
-            navigator.vibrate(500);
-            document.getElementById("fileTransfer").style.display = "block";
+            conn = peer.connect(receiverId);
+            conn.on("open", () => {
+                document.getElementById("status").innerText = "Status: Connected";
+            });
         }
 
         function sendFile() {
+            if (!conn || !conn.open) return alert("Not connected!");
+
             const file = document.getElementById("fileInput").files[0];
-            if (!file) return alert("Select a file first!");
+            if (!file) return alert("Select a file!");
 
             const reader = new FileReader();
             reader.onload = () => {
-                if (dataChannel.readyState === "open") {
-                    dataChannel.send(reader.result);
-                    document.getElementById("status").innerText = "File sent!";
-                }
+                conn.send({ name: file.name, data: reader.result });
+                alert("File Sent!");
             };
             reader.readAsArrayBuffer(file);
-        }
-
-        function receiveFile(data) {
-            const blob = new Blob([data]);
-            const url = URL.createObjectURL(blob);
-            const link = document.getElementById("downloadLink");
-            link.href = url;
-            link.style.display = "inline";
-            document.getElementById("status").innerText = "File received!";
         }
     </script>
 </body>
