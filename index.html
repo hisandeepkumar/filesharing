@@ -10,7 +10,7 @@
         body { font-family: Arial, sans-serif; text-align: center; background-color: #121212; color: white; }
         button { padding: 10px; font-size: 16px; margin: 5px; background-color: #333; color: #fff; border: none; cursor: pointer; }
         canvas { margin-top: 10px; }
-        #qrScanner { width: 300px; height: 300px; margin: auto; }
+        #qrScanner { width: 300px; height: 300px; margin: auto; display: none; }
     </style>
 </head>
 <body>
@@ -67,13 +67,19 @@
         }
 
         function startScanning() {
+            document.getElementById("qrScanner").style.display = "block"; // Show scanner
+
             html5QrCode = new Html5Qrcode("qrScanner");
-            html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 },
+            html5QrCode.start(
+                { facingMode: "environment" }, // Rear Camera (Main Camera)
+                { fps: 10, qrbox: 250 },
                 qrMessage => {
                     scannedData = qrMessage;
-                    html5QrCode.stop();
-                    document.getElementById("scanQR").style.display = "none";
-                    generateAnswerQR();
+                    html5QrCode.stop().then(() => {
+                        document.getElementById("qrScanner").style.display = "none"; // Hide scanner after scan
+                        document.getElementById("scanQR").style.display = "none";
+                        generateAnswerQR();
+                    });
                 },
                 errorMessage => {}
             );
@@ -111,11 +117,17 @@
         }
 
         function startScanningAnswer() {
-            html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 },
+            document.getElementById("qrScanner").style.display = "block"; // Show scanner
+
+            html5QrCode.start(
+                { facingMode: "environment" }, // Rear Camera (Main Camera)
+                { fps: 10, qrbox: 250 },
                 qrMessage => {
                     const sdp = JSON.parse(qrMessage);
                     peerConnection.setRemoteDescription(new RTCSessionDescription(sdp));
-                    html5QrCode.stop();
+                    html5QrCode.stop().then(() => {
+                        document.getElementById("qrScanner").style.display = "none"; // Hide scanner after scan
+                    });
                     document.getElementById("status").innerText = "Connected!";
                     navigator.vibrate(500);
                 },
