@@ -11,23 +11,23 @@
         button { padding: 10px; font-size: 16px; margin: 5px; background-color: #333; color: #fff; border: none; cursor: pointer; }
         canvas { margin-top: 10px; }
         #qrScanner { width: 300px; height: 300px; margin: auto; display: none; }
+        #fileTransfer { display: none; }
+        #answerQR { display: none; }
     </style>
 </head>
 <body>
     <h2>WebRTC P2P Connection</h2>
 
-    <button onclick="generateOfferQR()">Generate Offer QR Code</button>
-    <canvas id="offerQR"></canvas>
+    <button id="scanOffer" onclick="startScanningOffer()">Scan Offer</button>
+    <button id="scanAnswer" onclick="startScanningAnswer()" style="display:none;">Scan Answer</button>
 
     <div id="qrScanner"></div>
-    
-    <button id="scanQR" onclick="startScanning()">Scan QR Code</button>
-
-    <button id="generateAnswerQR" style="display:none;" onclick="generateAnswerQR()">Generate Answer QR</button>
     <canvas id="answerQR"></canvas>
 
-    <input type="file" id="fileInput">
-    <button onclick="sendFile()">Send File</button>
+    <div id="fileTransfer">
+        <input type="file" id="fileInput">
+        <button onclick="sendFile()">Send File</button>
+    </div>
 
     <p id="status"></p>
     <p>Received File: <a id="downloadLink" download="received_file">Download</a></p>
@@ -40,44 +40,18 @@
 
         const rtcConfig = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
 
-        function generateOfferQR() {
-            peerConnection = new RTCPeerConnection(rtcConfig);
-            dataChannel = peerConnection.createDataChannel("fileChannel");
-            
-            dataChannel.onopen = () => {
-                document.getElementById("status").innerText = "Connected!";
-                navigator.vibrate(500); // Vibrate when connected
-            };
-            dataChannel.onmessage = event => receiveFile(event.data);
-            
-            peerConnection.onicecandidate = event => {
-                if (event.candidate) console.log("ICE candidate:", JSON.stringify(event.candidate));
-            };
-
-            peerConnection.createOffer().then(offer => {
-                return peerConnection.setLocalDescription(offer);
-            }).then(() => {
-                new QRious({
-                    element: document.getElementById("offerQR"),
-                    value: JSON.stringify(peerConnection.localDescription),
-                    size: 200
-                });
-                document.getElementById("scanQR").style.display = "block"; // Show Scan QR button
-            });
-        }
-
-        function startScanning() {
-            document.getElementById("qrScanner").style.display = "block"; // Show scanner
+        function startScanningOffer() {
+            document.getElementById("qrScanner").style.display = "block";
+            document.getElementById("scanOffer").style.display = "none"; 
 
             html5QrCode = new Html5Qrcode("qrScanner");
             html5QrCode.start(
-                { facingMode: "environment" }, // Rear Camera (Main Camera)
+                { facingMode: "environment" },
                 { fps: 10, qrbox: 250 },
                 qrMessage => {
                     scannedData = qrMessage;
                     html5QrCode.stop().then(() => {
-                        document.getElementById("qrScanner").style.display = "none"; // Hide scanner after scan
-                        document.getElementById("scanQR").style.display = "none";
+                        document.getElementById("qrScanner").style.display = "none";
                         generateAnswerQR();
                     });
                 },
@@ -86,17 +60,13 @@
         }
 
         function generateAnswerQR() {
-            document.getElementById("generateAnswerQR").style.display = "block";
-
+            document.getElementById("scanAnswer").style.display = "block"; 
             const sdp = JSON.parse(scannedData);
             peerConnection = new RTCPeerConnection(rtcConfig);
             
             peerConnection.ondatachannel = event => {
                 dataChannel = event.channel;
-                dataChannel.onopen = () => {
-                    document.getElementById("status").innerText = "Connected!";
-                    navigator.vibrate(500);
-                };
+                dataChannel.onopen = () => showFileTransferUI();
                 dataChannel.onmessage = event => receiveFile(event.data);
             };
 
@@ -105,34 +75,38 @@
             }).then(answer => {
                 return peerConnection.setLocalDescription(answer);
             }).then(() => {
+                document.getElementById("answerQR").style.display = "block";
                 new QRious({
                     element: document.getElementById("answerQR"),
                     value: JSON.stringify(peerConnection.localDescription),
-                    size: 200
+                    size: 250
                 });
-
-                // Start scanning again for answer QR
-                setTimeout(() => startScanningAnswer(), 2000);
             });
         }
 
         function startScanningAnswer() {
-            document.getElementById("qrScanner").style.display = "block"; // Show scanner
+            document.getElementById("qrScanner").style.display = "block";
+            document.getElementById("scanAnswer").style.display = "none";
 
             html5QrCode.start(
-                { facingMode: "environment" }, // Rear Camera (Main Camera)
+                { facingMode: "environment" },
                 { fps: 10, qrbox: 250 },
                 qrMessage => {
                     const sdp = JSON.parse(qrMessage);
                     peerConnection.setRemoteDescription(new RTCSessionDescription(sdp));
                     html5QrCode.stop().then(() => {
-                        document.getElementById("qrScanner").style.display = "none"; // Hide scanner after scan
+                        document.getElementById("qrScanner").style.display = "none";
+                        showFileTransferUI();
                     });
-                    document.getElementById("status").innerText = "Connected!";
-                    navigator.vibrate(500);
                 },
                 errorMessage => {}
             );
+        }
+
+        function showFileTransferUI() {
+            document.getElementById("status").innerText = "Connected!";
+            document.getElementById("fileTransfer").style.display = "block";
+            navigator.vibrate(500);
         }
 
         function sendFile() {
