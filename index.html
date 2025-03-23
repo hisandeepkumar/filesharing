@@ -21,7 +21,7 @@
     <canvas id="offerQR"></canvas>
 
     <button id="scanOffer" onclick="startScanningOffer()">Scan Offer</button>
-    <button id="scanAnswer" onclick="startScanningAnswer()" style="display:none;">Scan Answer</button>
+    <button id="scanAnswer" onclick="startScanningAnswer()">Scan Answer</button>
 
     <div id="qrScanner"></div>
     <canvas id="answerQR"></canvas>
@@ -64,6 +64,7 @@
         function startScanningOffer() {
             document.getElementById("qrScanner").style.display = "block";
             document.getElementById("scanOffer").style.display = "none";
+            document.getElementById("scanAnswer").style.display = "none"; 
 
             html5QrCode = new Html5Qrcode("qrScanner");
             html5QrCode.start(
@@ -82,8 +83,6 @@
         }
 
         function generateAnswerQR() {
-            document.getElementById("scanAnswer").style.display = "block"; 
-
             const sdp = JSON.parse(scannedData);
             peerConnection = new RTCPeerConnection(rtcConfig);
             
@@ -105,6 +104,8 @@
                     size: 250
                 });
             });
+
+            document.getElementById("scanAnswer").style.display = "block"; 
         }
 
         function startScanningAnswer() {
