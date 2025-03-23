@@ -14,12 +14,19 @@
 <body>
     <h2>WebRTC P2P Connection</h2>
 
-    <button onclick="generateQR()">Generate QR Code</button>
-    <canvas id="qrCanvas"></canvas>
-    
-    <p>Or Paste SDP:</p>
-    <textarea id="sdpInput" rows="5" cols="50" placeholder="Paste scanned SDP here..."></textarea>
-    <button onclick="connectFromSDP()">Connect</button>
+    <button onclick="generateOfferQR()">Generate Offer QR Code</button>
+    <canvas id="offerQR"></canvas>
+
+    <p>Paste Answer SDP:</p>
+    <textarea id="answerInput" rows="5" cols="50" placeholder="Paste scanned Answer here..."></textarea>
+    <button onclick="acceptAnswer()">Accept Answer</button>
+
+    <button onclick="generateAnswerQR()">Generate Answer QR Code</button>
+    <canvas id="answerQR"></canvas>
+
+    <p>Paste Offer SDP:</p>
+    <textarea id="offerInput" rows="5" cols="50" placeholder="Paste scanned Offer here..."></textarea>
+    <button onclick="connectFromOffer()">Connect</button>
 
     <input type="file" id="fileInput">
     <button onclick="sendFile()">Send File</button>
@@ -33,7 +40,7 @@
 
         const rtcConfig = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
 
-        function generateQR() {
+        function generateOfferQR() {
             peerConnection = new RTCPeerConnection(rtcConfig);
             dataChannel = peerConnection.createDataChannel("fileChannel");
             
@@ -49,16 +56,16 @@
             peerConnection.createOffer().then(offer => {
                 return peerConnection.setLocalDescription(offer);
             }).then(() => {
-                let qr = new QRious({
-                    element: document.getElementById("qrCanvas"),
+                new QRious({
+                    element: document.getElementById("offerQR"),
                     value: JSON.stringify(peerConnection.localDescription),
                     size: 200
                 });
             });
         }
 
-        function connectFromSDP() {
-            const sdp = JSON.parse(document.getElementById("sdpInput").value);
+        function connectFromOffer() {
+            const sdp = JSON.parse(document.getElementById("offerInput").value);
             peerConnection = new RTCPeerConnection(rtcConfig);
             
             peerConnection.ondatachannel = event => {
@@ -72,8 +79,18 @@
             }).then(answer => {
                 return peerConnection.setLocalDescription(answer);
             }).then(() => {
-                console.log("Answer:", JSON.stringify(peerConnection.localDescription));
+                new QRious({
+                    element: document.getElementById("answerQR"),
+                    value: JSON.stringify(peerConnection.localDescription),
+                    size: 200
+                });
             });
+        }
+
+        function acceptAnswer() {
+            const sdp = JSON.parse(document.getElementById("answerInput").value);
+            peerConnection.setRemoteDescription(new RTCSessionDescription(sdp));
+            document.getElementById("status").innerText = "Connected!";
         }
 
         function sendFile() {
