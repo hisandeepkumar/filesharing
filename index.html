@@ -42,6 +42,15 @@
 
         const rtcConfig = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
 
+        function getRearCameraId() {
+            return navigator.mediaDevices.enumerateDevices()
+                .then(devices => {
+                    const videoDevices = devices.filter(device => device.kind === "videoinput");
+                    const rearCamera = videoDevices.find(device => device.label.toLowerCase().includes("back") || device.label.toLowerCase().includes("rear"));
+                    return rearCamera ? rearCamera.deviceId : null;
+                });
+        }
+
         function generateOfferQR() {
             peerConnection = new RTCPeerConnection(rtcConfig);
             dataChannel = peerConnection.createDataChannel("fileChannel");
@@ -61,14 +70,16 @@
             });
         }
 
-        function startScanningOffer() {
+        async function startScanningOffer() {
             document.getElementById("qrScanner").style.display = "block";
             document.getElementById("scanOffer").style.display = "none";
-            document.getElementById("scanAnswer").style.display = "none"; 
+            document.getElementById("scanAnswer").style.display = "none";
 
+            const rearCameraId = await getRearCameraId();
             html5QrCode = new Html5Qrcode("qrScanner");
+
             html5QrCode.start(
-                { facingMode: "environment" },
+                { deviceId: rearCameraId },
                 { fps: 10, qrbox: 250 },
                 qrMessage => {
                     scannedData = qrMessage;
@@ -85,7 +96,7 @@
         function generateAnswerQR() {
             const sdp = JSON.parse(scannedData);
             peerConnection = new RTCPeerConnection(rtcConfig);
-            
+
             peerConnection.ondatachannel = event => {
                 dataChannel = event.channel;
                 dataChannel.onopen = () => showFileTransferUI();
@@ -105,15 +116,18 @@
                 });
             });
 
-            document.getElementById("scanAnswer").style.display = "block"; 
+            document.getElementById("scanAnswer").style.display = "block";
         }
 
-        function startScanningAnswer() {
+        async function startScanningAnswer() {
             document.getElementById("qrScanner").style.display = "block";
             document.getElementById("scanAnswer").style.display = "none";
 
+            const rearCameraId = await getRearCameraId();
+            html5QrCode = new Html5Qrcode("qrScanner");
+
             html5QrCode.start(
-                { facingMode: "environment" },
+                { deviceId: rearCameraId },
                 { fps: 10, qrbox: 250 },
                 qrMessage => {
                     const sdp = JSON.parse(qrMessage);
