@@ -22,6 +22,7 @@
 
     <button id="scanOffer" onclick="startScanningOffer()">Scan Offer</button>
     <button id="scanAnswer" onclick="startScanningAnswer()">Scan Answer</button>
+    <button id="switchCamera" style="display:none;" onclick="switchCamera()">Switch Camera</button>
 
     <div id="qrScanner"></div>
     <canvas id="answerQR"></canvas>
@@ -39,17 +40,9 @@
         let dataChannel;
         let html5QrCode;
         let scannedData = null;
+        let currentCamera = "environment"; // Default: Back Camera
 
         const rtcConfig = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
-
-        function getRearCameraId() {
-            return navigator.mediaDevices.enumerateDevices()
-                .then(devices => {
-                    const videoDevices = devices.filter(device => device.kind === "videoinput");
-                    const rearCamera = videoDevices.find(device => device.label.toLowerCase().includes("back") || device.label.toLowerCase().includes("rear"));
-                    return rearCamera ? rearCamera.deviceId : null;
-                });
-        }
 
         function generateOfferQR() {
             peerConnection = new RTCPeerConnection(rtcConfig);
@@ -70,27 +63,58 @@
             });
         }
 
-        async function startScanningOffer() {
+        function startScanningOffer() {
             document.getElementById("qrScanner").style.display = "block";
+            document.getElementById("switchCamera").style.display = "block";
             document.getElementById("scanOffer").style.display = "none";
             document.getElementById("scanAnswer").style.display = "none";
 
-            const rearCameraId = await getRearCameraId();
-            html5QrCode = new Html5Qrcode("qrScanner");
+            startQRCodeScanner();
+        }
 
+        function startScanningAnswer() {
+            document.getElementById("qrScanner").style.display = "block";
+            document.getElementById("switchCamera").style.display = "block";
+            document.getElementById("scanAnswer").style.display = "none";
+
+            startQRCodeScanner();
+        }
+
+        function startQRCodeScanner() {
+            if (html5QrCode) {
+                html5QrCode.stop().then(() => {
+                    scanQRCode();
+                });
+            } else {
+                scanQRCode();
+            }
+        }
+
+        function scanQRCode() {
+            html5QrCode = new Html5Qrcode("qrScanner");
             html5QrCode.start(
-                { deviceId: rearCameraId },
+                { facingMode: currentCamera }, // Uses current camera setting
                 { fps: 10, qrbox: 250 },
                 qrMessage => {
                     scannedData = qrMessage;
                     html5QrCode.stop().then(() => {
                         document.getElementById("qrScanner").style.display = "none";
-                        document.getElementById("offerQR").style.display = "none";
-                        generateAnswerQR();
+                        document.getElementById("switchCamera").style.display = "none";
+
+                        if (document.getElementById("scanOffer").style.display === "none") {
+                            generateAnswerQR();
+                        } else {
+                            showFileTransferUI();
+                        }
                     });
                 },
                 errorMessage => {}
             );
+        }
+
+        function switchCamera() {
+            currentCamera = (currentCamera === "environment") ? "user" : "environment";
+            startQRCodeScanner(); // Restart scanner with new camera
         }
 
         function generateAnswerQR() {
@@ -117,28 +141,6 @@
             });
 
             document.getElementById("scanAnswer").style.display = "block";
-        }
-
-        async function startScanningAnswer() {
-            document.getElementById("qrScanner").style.display = "block";
-            document.getElementById("scanAnswer").style.display = "none";
-
-            const rearCameraId = await getRearCameraId();
-            html5QrCode = new Html5Qrcode("qrScanner");
-
-            html5QrCode.start(
-                { deviceId: rearCameraId },
-                { fps: 10, qrbox: 250 },
-                qrMessage => {
-                    const sdp = JSON.parse(qrMessage);
-                    peerConnection.setRemoteDescription(new RTCSessionDescription(sdp));
-                    html5QrCode.stop().then(() => {
-                        document.getElementById("qrScanner").style.display = "none";
-                        showFileTransferUI();
-                    });
-                },
-                errorMessage => {}
-            );
         }
 
         function showFileTransferUI() {
