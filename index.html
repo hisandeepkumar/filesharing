@@ -15,10 +15,9 @@
         #answerQR, #offerQR { display: none; }
     </style>
 </head>
-<body>
+<body onload="generateOfferQR()">
     <h2>WebRTC P2P Connection</h2>
 
-    <button id="generateOffer" onclick="generateOfferQR()">Generate Offer QR</button>
     <canvas id="offerQR"></canvas>
 
     <button id="scanOffer" onclick="startScanningOffer()">Scan Offer</button>
@@ -44,9 +43,6 @@
         const rtcConfig = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
 
         function generateOfferQR() {
-            document.getElementById("generateOffer").style.display = "none";
-            document.getElementById("scanOffer").style.display = "block";
-
             peerConnection = new RTCPeerConnection(rtcConfig);
             dataChannel = peerConnection.createDataChannel("fileChannel");
 
