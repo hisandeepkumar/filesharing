@@ -3,29 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR WebRTC Signaling</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
-    <script src="https://unpkg.com/html5-qrcode"></script>
+    <title>Code-Based WebRTC Signaling</title>
     <style>
         body { font-family: Arial, sans-serif; text-align: center; background-color: #121212; color: white; }
-        button { padding: 10px; font-size: 16px; margin: 5px; background-color: #333; color: #fff; border: none; cursor: pointer; }
-        canvas { margin-top: 10px; }
-        #qrScanner { width: 300px; height: 300px; margin: auto; display: none; }
+        button, input { padding: 10px; font-size: 16px; margin: 5px; background-color: #333; color: #fff; border: none; cursor: pointer; }
+        input { width: 80%; text-align: center; background-color: #222; border: 1px solid #555; color: white; }
         #fileTransfer { display: none; }
-        #answerQR, #offerQR { display: none; }
     </style>
 </head>
-<body onload="generateOfferQR()">
+<body onload="generateOfferCode()">
     <h2>WebRTC P2P Connection</h2>
 
-    <canvas id="offerQR"></canvas>
+    <p><b>Offer Code:</b></p>
+    <input type="text" id="offerCode" readonly>
+    <button onclick="copyOfferCode()">Copy Code</button>
 
-    <button id="scanOffer" onclick="startScanningOffer()">Scan Offer</button>
-    <button id="scanAnswer" onclick="startScanningAnswer()">Scan Answer</button>
-    <button id="switchCamera" style="display:none;" onclick="switchCamera()">Switch Camera</button>
+    <p><b>Enter Offer Code:</b></p>
+    <input type="text" id="inputOfferCode" placeholder="Paste Offer Code Here" oninput="generateAnswerCode()">
 
-    <div id="qrScanner"></div>
-    <canvas id="answerQR"></canvas>
+    <p><b>Answer Code:</b></p>
+    <input type="text" id="answerCode" readonly>
+    <button onclick="copyAnswerCode()">Copy Code</button>
+
+    <p><b>Enter Answer Code:</b></p>
+    <input type="text" id="inputAnswerCode" placeholder="Paste Answer Code Here" oninput="connectWithAnswer()">
 
     <div id="fileTransfer">
         <input type="file" id="fileInput">
@@ -38,13 +39,10 @@
     <script>
         let peerConnection;
         let dataChannel;
-        let html5QrCode;
-        let scannedData = null;
-        let currentCamera = "environment"; // Default: Back Camera
 
         const rtcConfig = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
 
-        function generateOfferQR() {
+        function generateOfferCode() {
             peerConnection = new RTCPeerConnection(rtcConfig);
             dataChannel = peerConnection.createDataChannel("fileChannel");
 
@@ -54,71 +52,21 @@
             peerConnection.createOffer().then(offer => {
                 return peerConnection.setLocalDescription(offer);
             }).then(() => {
-                document.getElementById("offerQR").style.display = "block";
-                new QRious({
-                    element: document.getElementById("offerQR"),
-                    value: JSON.stringify(peerConnection.localDescription),
-                    size: 250
-                });
+                document.getElementById("offerCode").value = btoa(JSON.stringify(peerConnection.localDescription));
             });
         }
 
-        function startScanningOffer() {
-            document.getElementById("qrScanner").style.display = "block";
-            document.getElementById("switchCamera").style.display = "block";
-            document.getElementById("scanOffer").style.display = "none";
-            document.getElementById("scanAnswer").style.display = "none";
+        function generateAnswerCode() {
+            let encodedOffer = document.getElementById("inputOfferCode").value;
+            if (!encodedOffer) return;
 
-            startQRCodeScanner();
-        }
-
-        function startScanningAnswer() {
-            document.getElementById("qrScanner").style.display = "block";
-            document.getElementById("switchCamera").style.display = "block";
-            document.getElementById("scanAnswer").style.display = "none";
-
-            startQRCodeScanner();
-        }
-
-        function startQRCodeScanner() {
-            if (html5QrCode) {
-                html5QrCode.stop().then(() => {
-                    scanQRCode();
-                });
-            } else {
-                scanQRCode();
+            let sdp;
+            try {
+                sdp = JSON.parse(atob(encodedOffer));
+            } catch (e) {
+                return;
             }
-        }
 
-        function scanQRCode() {
-            html5QrCode = new Html5Qrcode("qrScanner");
-            html5QrCode.start(
-                { facingMode: currentCamera }, // Uses current camera setting
-                { fps: 10, qrbox: 250 },
-                qrMessage => {
-                    scannedData = qrMessage;
-                    html5QrCode.stop().then(() => {
-                        document.getElementById("qrScanner").style.display = "none";
-                        document.getElementById("switchCamera").style.display = "none";
-
-                        if (document.getElementById("scanOffer").style.display === "none") {
-                            generateAnswerQR();
-                        } else {
-                            showFileTransferUI();
-                        }
-                    });
-                },
-                errorMessage => {}
-            );
-        }
-
-        function switchCamera() {
-            currentCamera = (currentCamera === "environment") ? "user" : "environment";
-            startQRCodeScanner(); // Restart scanner with new camera
-        }
-
-        function generateAnswerQR() {
-            const sdp = JSON.parse(scannedData);
             peerConnection = new RTCPeerConnection(rtcConfig);
 
             peerConnection.ondatachannel = event => {
@@ -132,21 +80,44 @@
             }).then(answer => {
                 return peerConnection.setLocalDescription(answer);
             }).then(() => {
-                document.getElementById("answerQR").style.display = "block";
-                new QRious({
-                    element: document.getElementById("answerQR"),
-                    value: JSON.stringify(peerConnection.localDescription),
-                    size: 250
-                });
+                document.getElementById("answerCode").value = btoa(JSON.stringify(peerConnection.localDescription));
             });
+        }
 
-            document.getElementById("scanAnswer").style.display = "block";
+        function connectWithAnswer() {
+            let encodedAnswer = document.getElementById("inputAnswerCode").value;
+            if (!encodedAnswer) return;
+
+            let sdp;
+            try {
+                sdp = JSON.parse(atob(encodedAnswer));
+            } catch (e) {
+                return;
+            }
+
+            peerConnection.setRemoteDescription(new RTCSessionDescription(sdp)).then(() => {
+                document.getElementById("status").innerText = "Connected!";
+                navigator.vibrate(500);
+                document.getElementById("fileTransfer").style.display = "block";
+            });
+        }
+
+        function copyOfferCode() {
+            let offerCode = document.getElementById("offerCode");
+            offerCode.select();
+            document.execCommand("copy");
+        }
+
+        function copyAnswerCode() {
+            let answerCode = document.getElementById("answerCode");
+            answerCode.select();
+            document.execCommand("copy");
         }
 
         function showFileTransferUI() {
             document.getElementById("status").innerText = "Connected!";
-            document.getElementById("fileTransfer").style.display = "block";
             navigator.vibrate(500);
+            document.getElementById("fileTransfer").style.display = "block";
         }
 
         function sendFile() {
