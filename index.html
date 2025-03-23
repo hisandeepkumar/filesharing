@@ -39,6 +39,7 @@
     <script>
         let peerConnection;
         let dataChannel;
+        let isConnected = false;
 
         const rtcConfig = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
 
@@ -85,6 +86,8 @@
         }
 
         function connectWithAnswer() {
+            if (isConnected) return; // Agar already connected hai to kuch mat karo
+            
             let encodedAnswer = document.getElementById("inputAnswerCode").value;
             if (!encodedAnswer) return;
 
@@ -96,9 +99,19 @@
             }
 
             peerConnection.setRemoteDescription(new RTCSessionDescription(sdp)).then(() => {
+                isConnected = true; // Connection establish hone ke baad flag set kar do
                 document.getElementById("status").innerText = "Connected!";
                 navigator.vibrate(500);
                 document.getElementById("fileTransfer").style.display = "block";
+
+                // Dono mobiles me "Connected" show karne ke liye event listener add karo
+                peerConnection.onconnectionstatechange = () => {
+                    if (peerConnection.connectionState === "connected") {
+                        document.getElementById("status").innerText = "Connected!";
+                        navigator.vibrate(500);
+                        document.getElementById("fileTransfer").style.display = "block";
+                    }
+                };
             });
         }
 
