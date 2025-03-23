@@ -12,11 +12,14 @@
         canvas { margin-top: 10px; }
         #qrScanner { width: 300px; height: 300px; margin: auto; display: none; }
         #fileTransfer { display: none; }
-        #answerQR { display: none; }
+        #answerQR, #offerQR { display: none; }
     </style>
 </head>
 <body>
     <h2>WebRTC P2P Connection</h2>
+
+    <button id="generateOffer" onclick="generateOfferQR()">Generate Offer QR</button>
+    <canvas id="offerQR"></canvas>
 
     <button id="scanOffer" onclick="startScanningOffer()">Scan Offer</button>
     <button id="scanAnswer" onclick="startScanningAnswer()" style="display:none;">Scan Answer</button>
@@ -40,9 +43,31 @@
 
         const rtcConfig = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
 
+        function generateOfferQR() {
+            document.getElementById("generateOffer").style.display = "none";
+            document.getElementById("scanOffer").style.display = "block";
+
+            peerConnection = new RTCPeerConnection(rtcConfig);
+            dataChannel = peerConnection.createDataChannel("fileChannel");
+
+            dataChannel.onopen = () => showFileTransferUI();
+            dataChannel.onmessage = event => receiveFile(event.data);
+
+            peerConnection.createOffer().then(offer => {
+                return peerConnection.setLocalDescription(offer);
+            }).then(() => {
+                document.getElementById("offerQR").style.display = "block";
+                new QRious({
+                    element: document.getElementById("offerQR"),
+                    value: JSON.stringify(peerConnection.localDescription),
+                    size: 250
+                });
+            });
+        }
+
         function startScanningOffer() {
             document.getElementById("qrScanner").style.display = "block";
-            document.getElementById("scanOffer").style.display = "none"; 
+            document.getElementById("scanOffer").style.display = "none";
 
             html5QrCode = new Html5Qrcode("qrScanner");
             html5QrCode.start(
@@ -52,6 +77,7 @@
                     scannedData = qrMessage;
                     html5QrCode.stop().then(() => {
                         document.getElementById("qrScanner").style.display = "none";
+                        document.getElementById("offerQR").style.display = "none";
                         generateAnswerQR();
                     });
                 },
@@ -61,6 +87,7 @@
 
         function generateAnswerQR() {
             document.getElementById("scanAnswer").style.display = "block"; 
+
             const sdp = JSON.parse(scannedData);
             peerConnection = new RTCPeerConnection(rtcConfig);
             
