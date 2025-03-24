@@ -31,7 +31,7 @@ Ultra Fast File Transfer is a **lightweight, high-speed, and cross-platform** fi
 ---
 
 ## 📸 Screenshots  
-_(Add some screenshots of the interface here!)_  
+ 
 
 ---
 
