@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀Ultra Fast File Transfer (Android ↔ iPhone Supported)</title>
+    <script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/davidshimjs-qrcodejs@0.0.2/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #00ff88;
+            --background: #0a1929;
+        }
+
+        body {
+            background: var(--background);
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .panel {
+            background: #001e3c;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            border: 1px solid #004d99;
+        }
+
+        .id-box {
+            background: #002850;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.1em;
+        }
+
+        .qr-container {
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        #qrScanner {
+            width: 100%;
+            height: 300px;
+            background: #002850;
+            border-radius: 10px;
+            margin: 15px 0;
+            display: none;
+        }
+
+        #qrScanner video {
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+        }
+
+        .scan-btn {
+            background: var(--primary);
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        button {
+            background: var(--primary);
+            color: #002850;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+            width: 100%;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <h1>🚀Ultra Fast File Transfer (Android ↔ iPhone Supported)</h1>
+    
+    <div class="container">
+        <!-- Sender Panel -->
+        <div class="panel">
+            <h2>📤 Send Files</h2>
+            <div class="id-box">
+                🔑 Your ID: <strong id="myId">Generating ID...</strong>
+                <button onclick="copyID()">Copy</button>
+            </div>
+            <div class="qr-container" id="senderQr"></div>
+            <input type="text" id="peerId" placeholder="📥 Enter Receiver ID">
+            <button onclick="connectPeer()">🔗 Connect</button>
+            <input type="file" id="fileInput" multiple hidden>
+            <button onclick="document.getElementById('fileInput').click()">📎 Select Files</button>
+            <button onclick="sendFiles()">🚀 Send Files</button>
+        </div>
+
+        <!-- Receiver Panel -->
+        <div class="panel">
+            <h2>📥 Receive Files</h2>
+            <button onclick="startQRScanner()" class="scan-btn">📷 Scan Sender's QR Code</button>
+            <div id="qrScanner"></div>
+            <div id="fileList"></div>
+        </div>
+    </div>
+
+<script>
+let peer = null;
+let conn = null;
+let videoElement = null;
+
+// Initialize Peer
+function initializePeer() {
+    peer = new Peer({
+        config: {
+            iceServers: [
+                { urls: 'stun:stun.l.google.com:19302' },
+                { urls: 'stun:global.stun.twilio.com:3478' }
+            ]
+        }
+    });
+
+    peer.on('open', id => {
+        document.getElementById('myId').textContent = id;
+        generateQRCode(id);
+    });
+
+    peer.on('connection', connection => {
+        conn = connection;
+        setupConnection(connection);
+    });
+
+    peer.on('error', err => {
+        console.error('Peer Error:', err);
+    });
+}
+
+// QR Code Generation
+function generateQRCode(id) {
+    document.getElementById('senderQr').innerHTML = '';
+    new QRCode(document.getElementById('senderQr'), {
+        text: id,
+        width: 200,
+        height: 200,
+        colorDark : "#00ff88",
+        colorLight : "#001e3c",
+        correctLevel : QRCode.CorrectLevel.H
+    });
+}
+
+// QR Scanning
+function startQRScanner() {
+    const scannerDiv = document.getElementById('qrScanner');
+    scannerDiv.style.display = 'block';
+    
+    videoElement = document.createElement('video');
+    scannerDiv.appendChild(videoElement);
+    
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+    .then(stream => {
+        videoElement.srcObject = stream;
+        videoElement.setAttribute("playsinline", true);
+        videoElement.play();
+        requestAnimationFrame(scanQR);
+    })
+    .catch(err => {
+        console.error('Camera access error:', err);
+        alert('Camera access required for scanning!');
+    });
+}
+
+function scanQR() {
+    if (!videoElement || videoElement.readyState !== 4) {
+        requestAnimationFrame(scanQR);
+        return;
+    }
+
+    const canvas = document.createElement('canvas');
+    canvas.width = videoElement.videoWidth;
+    canvas.height = videoElement.videoHeight;
+    const context = canvas.getContext('2d');
+    
+    context.drawImage(videoElement, 0, 0);
+    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+    const code = jsQR(imageData.data, imageData.width, imageData.height);
+
+    if (code) {
+        stopQRScanner();
+        document.getElementById('peerId').value = code.data;
+        connectPeer();
+    } else {
+        requestAnimationFrame(scanQR);
+    }
+}
+
+function stopQRScanner() {
+    if (videoElement && videoElement.srcObject) {
+        videoElement.srcObject.getTracks().forEach(track => track.stop());
+    }
+    document.getElementById('qrScanner').style.display = 'none';
+}
+
+// Connect Peer
+function connectPeer() {
+    const peerId = document.getElementById('peerId').value.trim();
+    if (!peerId) return alert("⚠️ Enter Receiver ID!");
+    
+    conn = peer.connect(peerId);
+    conn.on('open', () => alert(`Connected to ${peerId}`));
+}
+
+// Send Files
+function sendFiles() {
+    const files = document.getElementById('fileInput').files;
+    if (!conn || files.length === 0) return alert("No connection or files selected!");
+    
+    for (const file of files) {
+        conn.send({ name: file.name, size: file.size });
+    }
+}
+
+// Copy ID to Clipboard
+function copyID() {
+    const id = document.getElementById('myId').textContent;
+    navigator.clipboard.writeText(id);
+    alert("Copied ID: " + id);
+}
+
+// Initialize
+window.addEventListener('load', initializePeer);
+</script>
+</body>
+</html>
