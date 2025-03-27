@@ -1,4 +1,4 @@
-const CACHE_NAME = "infinity-cache-v1";
+const CACHE_NAME = "AirDropX-cache-v1";
 const urlsToCache = [
   "./index.html",
   "./styles.css",
