@@ -1,6 +1,6 @@
-# 🚀 Ultra Fast File Transfer  
+# 🚀  AirDropX
 
-Ultra Fast File Transfer is a **lightweight, high-speed, and cross-platform** file-sharing web app that allows users to **send and receive files instantly** using a **secure, peer-to-peer (P2P) connection**. No need for external servers or cloud storage—your files are transferred **directly** between devices!  
+AirDropX is a **lightweight, high-speed, and cross-platform** file-sharing web app that allows users to **send and receive files instantly** using a **secure, peer-to-peer (P2P) connection**. No need for external servers or cloud storage—your files are transferred **directly** between devices!  
 
 ---
 
