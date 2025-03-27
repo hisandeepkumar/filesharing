@@ -57,7 +57,6 @@ This project is open-source and free to use under the **MIT License**.
 🔗 **Made with ❤️ by Sandeep**
 
 
-🔗 Live Demo
 
 ## 🔗 Live Demo  
 [![Live Demo](https://img.shields.io/badge/🚀-Visit_Live_Demo-blue?style=for-the-badge)](https://hisandeepkumar.github.io/filesharing/)  
