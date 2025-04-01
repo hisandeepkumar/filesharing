@@ -375,20 +375,17 @@ function connectPeer() {
     conn.on('error', err => console.error('Connection Error:', err));
 }
 
-function setupConnection(connection) {
-    connection.on('data', handleIncomingData);
-    connection.on('close', () => updateStatus('🔴 Connection Closed', 'disconnected'));
-
-    updateStatus(`🟢 Connected to ${connection.peer}`, 'connected');
+function setupConnection(connection) { 
+    connection.on('data', handleIncomingData); 
+    connection.on('close', () => updateStatus('🔴 Connection Closed', 'disconnected')); 
+    updateStatus(`🟢 Connected to ${connection.peer}`, 'connected'); 
 }
 
 function updateStatus(message, status) {
-    document.getElementById('status').textContent = message;
-
-    // Vibrate if status is 'connected'
-    if (status === 'connected' && navigator.vibrate) {
-        navigator.vibrate(500);
+    if (navigator.vibrate) {
+        navigator.vibrate(200); // 200ms ke liye vibrate karega
     }
+    console.log(message); // Ya jo bhi tum status update karna chahte ho
 }
     
 // File Transfer Logic
