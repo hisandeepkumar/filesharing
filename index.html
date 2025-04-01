@@ -280,10 +280,9 @@ function initializePeer() {
     });
 
     peer.on('open', id => {
-        document.getElementById('myId').textContent = id;
-        updateStatus('🟢 Connected to Server', 'connected');
-        generateQRCode(id);
-    });
+    document.getElementById('myId').textContent = id;
+    generateQRCode(id);
+});
 
     peer.on('error', err => {
         console.error('Peer Error:', err);
