@@ -379,6 +379,12 @@ function connectPeer() {
 function setupConnection(connection) {
     connection.on('data', handleIncomingData);
     connection.on('close', () => updateStatus('🔴 Connection Closed', 'disconnected'));
+
+    // Vibrate for 500 milliseconds on both devices when connected
+    if (navigator.vibrate) {
+        navigator.vibrate(500);
+    }
+
     updateStatus(`🟢 Connected to ${connection.peer}`, 'connected');
 }
 
