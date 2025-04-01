@@ -381,13 +381,7 @@ function setupConnection(connection) {
     updateStatus(`🟢 Connected to ${connection.peer}`, 'connected'); 
 }
 
-function updateStatus(message, status) {
-    if (navigator.vibrate) {
-        navigator.vibrate(200); // 200ms ke liye vibrate karega
-    }
-    console.log(message); // Ya jo bhi tum status update karna chahte ho
-}
-    
+
 // File Transfer Logic
 async function processFiles() {
     const files = document.getElementById('fileInput').files;
@@ -503,6 +497,18 @@ function updateStatus(text, status) {
     const elem = document.getElementById('status');
     elem.textContent = `Status: ${text}`;
     elem.className = `status ${status}`;
+
+    // Add vibration for connection status changes
+    if (status === 'connected' || status === 'disconnected') {
+        // Check if vibration API is available
+        if (navigator.vibrate) {
+            // Different vibration patterns for connect/disconnect
+            const pattern = status === 'connected' 
+                ? [200] // Single 200ms pulse for connection
+                : [100, 50, 100]; // Triple pulse for disconnection
+            navigator.vibrate(pattern);
+        }
+    }
 }
 
 function updateProgress(barId, percent) {
