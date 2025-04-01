@@ -380,14 +380,24 @@ function setupConnection(connection) {
     connection.on('data', handleIncomingData);
     connection.on('close', () => updateStatus('🔴 Connection Closed', 'disconnected'));
 
-    // Vibrate for 500 milliseconds on both devices when connected
+    // Vibrate on current device
     if (navigator.vibrate) {
         navigator.vibrate(500);
     }
 
+    // Send vibrate signal to other device
+    connection.send("vibrate");
+
     updateStatus(`🟢 Connected to ${connection.peer}`, 'connected');
 }
 
+function handleIncomingData(data) {
+    if (data === "vibrate" && navigator.vibrate) {
+        navigator.vibrate(500); // Vibrate on receiving device
+    }
+    
+    // Handle other incoming data
+}
 // File Transfer Logic
 async function processFiles() {
     const files = document.getElementById('fileInput').files;
