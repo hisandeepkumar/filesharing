@@ -379,24 +379,18 @@ function setupConnection(connection) {
     connection.on('data', handleIncomingData);
     connection.on('close', () => updateStatus('🔴 Connection Closed', 'disconnected'));
 
-    // Vibrate on current device
-    if (navigator.vibrate) {
-        navigator.vibrate(500);
-    }
-
-    // Send vibrate signal to other device
-    connection.send("vibrate");
-
     updateStatus(`🟢 Connected to ${connection.peer}`, 'connected');
 }
 
-function handleIncomingData(data) {
-    if (data === "vibrate" && navigator.vibrate) {
-        navigator.vibrate(500); // Vibrate on receiving device
+function updateStatus(message, status) {
+    document.getElementById('status').textContent = message;
+
+    // Vibrate if status is 'connected'
+    if (status === 'connected' && navigator.vibrate) {
+        navigator.vibrate(500);
     }
-    
-    // Handle other incoming data
 }
+    
 // File Transfer Logic
 async function processFiles() {
     const files = document.getElementById('fileInput').files;
