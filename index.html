@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="./manifest.json">
+    <title>🚀AirDropX Pro (10GB+ Transfer)</title>
+    
+    <!-- PeerJS Library -->
+    <script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
+    
+    <!-- IndexedDB Library -->
+    <script src="https://cdn.jsdelivr.net/npm/idb@7.0.2/build/iife/index-min.js"></script>
+    
+    <!-- QR Code Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/davidshimjs-qrcodejs@0.0.2/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #00ff88;
+            --secondary: #00b4d8;
+            --background: #0a1929;
+        }
+
+        body {
+            background: var(--background);
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .panel {
+            background: #001e3c;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            border: 2px solid #004d99;
+            position: relative;
+            overflow: hidden;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary);
+            margin: 30px 0;
+            font-size: 2.5em;
+            text-shadow: 0 0 15px var(--primary);
+        }
+
+        .id-box {
+            background: #002850;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.1em;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--secondary);
+            border-radius: 8px;
+            background: #001e3c;
+            color: white;
+            font-size: 16px;
+            margin: 10px 0;
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 10px var(--primary);
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: #002850;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+            margin: 10px 0;
+            width: 100%;
+        }
+
+        button:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 20px var(--primary);
+        }
+
+        .progress-container {
+            background: #003362;
+            border-radius: 10px;
+            height: 15px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transition: width 0.3s ease;
+        }
+
+        .qr-container {
+            margin: 20px 0;
+            text-align: center;
+            background: #002850;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        #qrScanner {
+            width: 100%;
+            height: 300px;
+            background: #002850;
+            border-radius: 10px;
+            margin: 15px 0;
+            position: relative;
+        }
+
+        .file-item {
+            background: #00285055;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            backdrop-filter: blur(5px);
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .connected { background: var(--primary); box-shadow: 0 0 10px var(--primary); }
+        .disconnected { background: #ff0000; }
+        
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>🚀AirDropX Pro (10GB+ Transfer)</h1>
+    
+    <div class="container">
+        <!-- Sender Panel -->
+        <div class="panel">
+            <h2>📤 Send Files</h2>
+            <div class="id-box">
+                <span class="status-indicator" id="senderStatus"></span>
+                🔑 Your ID: <strong id="myId">Connecting...</strong>
+                <button class="copy-btn" onclick="copyID()">📋 Copy</button>
+            </div>
+            <div class="qr-container" id="senderQr"></div>
+            
+            <input type="text" id="peerId" placeholder="📥 Enter Receiver ID" autocomplete="off">
+            <button onclick="connectPeer()">🔗 Connect (Alt+C)</button>
+            
+            <input type="file" id="fileInput" multiple hidden>
+            <button onclick="document.getElementById('fileInput').click()">
+                📁 Select Files (Max 10GB)
+            </button>
+            <button onclick="startTransfer()">🚀 Start Transfer (Alt+T)</button>
+            
+            <div class="progress-container">
+                <div class="progress-bar" id="sendProgress"></div>
+            </div>
+        </div>
+
+        <!-- Receiver Panel -->
+        <div class="panel">
+            <h2>📥 Receive Files</h2>
+            <div class="id-box">
+                <span class="status-indicator" id="receiverStatus"></span>
+                ⚡ Connection Status: <span id="connectionStatus">Initializing...</span>
+            </div>
+            
+            <button onclick="startQRScanner()" class="scan-btn">
+                📷 Scan Sender QR (Alt+S)
+            </button>
+            <div id="qrScanner"></div>
+            
+            <div id="fileList" class="file-list"></div>
+            <div class="progress-container">
+                <div class="progress-bar" id="receiveProgress"></div>
+            </div>
+        </div>
+    </div>
+
+<script>
+// Configuration
+const CONFIG = {
+    CHUNK_SIZE: 256 * 1024, // 256KB chunks
+    MAX_PARALLEL: 16,       // Parallel transfers
+    MAX_RETRIES: 5,         // Retry attempts
+    RETRY_DELAY: 1000,      // Exponential backoff
+    ICE_SERVERS: [
+        { urls: 'stun:stun.l.google.com:19302' },
+        { urls: 'stun:global.stun.twilio.com:3478' },
+        // Add your TURN servers here
+        {
+            urls: 'turn:your-turn-server.com',
+            username: 'your-username',
+            credential: 'your-credential'
+        }
+    ]
+};
+
+let peer = null;
+let conn = null;
+let db = null;
+let activeTransfers = new Map();
+
+// Initialize Database
+async function initDB() {
+    db = await idb.openDB('AirDropXDB', 2, {
+        upgrade(db, oldVersion) {
+            if (oldVersion < 1) {
+                db.createObjectStore('metadata', { keyPath: 'id' });
+                db.createObjectStore('chunks', { 
+                    keyPath: ['fileId', 'index'],
+                    autoIncrement: false
+                });
+            }
+            if (oldVersion < 2) {
+                db.createObjectStore('pending', { keyPath: 'id' });
+            }
+        }
+    });
+}
+
+// PeerJS Initialization
+async function initializePeer() {
+    await initDB();
+    
+    peer = new Peer({
+        config: { iceServers: CONFIG.ICE_SERVERS },
+        debug: 3
+    });
+
+    peer.on('open', id => {
+        document.getElementById('myId').textContent = id;
+        updateStatus('🟢 Connected', 'connected');
+        generateQRCode(id);
+    });
+
+    peer.on('error', handlePeerError);
+    peer.on('connection', handleNewConnection);
+}
+
+function handlePeerError(err) {
+    console.error('Peer Error:', err);
+    updateStatus('🔴 Connection Error', 'disconnected');
+    setTimeout(initializePeer, 3000);
+}
+
+function handleNewConnection(connection) {
+    conn = connection;
+    setupConnection(connection);
+    updateStatus(`🟢 Connected to ${connection.peer}`, 'connected');
+}
+
+// Connection Management
+function setupConnection(connection) {
+    connection.on('data', handleIncomingData);
+    connection.on('close', () => {
+        updateStatus('🔴 Connection Closed', 'disconnected');
+        checkForPendingTransfers();
+    });
+    connection.on('error', handleConnectionError);
+}
+
+async function checkForPendingTransfers() {
+    const pending = await db.getAll('pending');
+    if(pending.length > 0) {
+        if(confirm('Resume pending transfers?')) {
+            pending.forEach(file => processFile(file));
+        }
+    }
+}
+
+// File Transfer Logic
+async function startTransfer() {
+    const files = document.getElementById('fileInput').files;
+    if(!files.length) return alert('Select files first!');
+    
+    try {
+        for(const file of files) {
+            const fileId = crypto.randomUUID();
+            await storeMetadata(file, fileId);
+            await sendMetadata(file, fileId);
+            await transferFile(file, fileId);
+        }
+        alert('Transfer completed successfully!');
+    } catch(err) {
+        handleTransferError(err);
+    }
+}
+
+async function storeMetadata(file, fileId) {
+    const metadata = {
+        id: fileId,
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        chunks: Math.ceil(file.size / CONFIG.CHUNK_SIZE),
+        sent: 0
+    };
+    await db.put('metadata', metadata);
+}
+
+async function sendMetadata(file, fileId) {
+    conn.send({
+        type: 'metadata',
+        id: fileId,
+        name: file.name,
+        size: file.size,
+        mime: file.type,
+        totalChunks: Math.ceil(file.size / CONFIG.CHUNK_SIZE)
+    });
+}
+
+async function transferFile(file, fileId) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        let chunkIndex = 0;
+        
+        function readNextChunk() {
+            const start = chunkIndex * CONFIG.CHUNK_SIZE;
+            const end = Math.min(start + CONFIG.CHUNK_SIZE, file.size);
+            
+            if(start >= file.size) {
+                resolve();
+                return;
+            }
+
+            reader.onload = async () => {
+                await sendChunkWithRetry(fileId, chunkIndex, reader.result);
+                chunkIndex++;
+                updateProgress('sendProgress', (chunkIndex / Math.ceil(file.size / CONFIG.CHUNK_SIZE)) * 100);
+                readNextChunk();
+            };
+            
+            reader.readAsArrayBuffer(file.slice(start, end));
+        }
+
+        readNextChunk();
+    });
+}
+
+async function sendChunkWithRetry(fileId, index, chunkData, attempt = 1) {
+    try {
+        await conn.send({ type: 'chunk', id: fileId, index, data: chunkData });
+        await db.delete('pending', fileId);
+    } catch(err) {
+        if(attempt <= CONFIG.MAX_RETRIES) {
+            await db.put('pending', { id: fileId, index, data: chunkData });
+            await new Promise(r => setTimeout(r, attempt * CONFIG.RETRY_DELAY));
+            await sendChunkWithRetry(fileId, index, chunkData, attempt + 1);
+        } else {
+            throw new Error(`Failed to send chunk ${index} after ${CONFIG.MAX_RETRIES} attempts`);
+        }
+    }
+}
+
+// Receiver Logic
+async function handleIncomingData(data) {
+    switch(data.type) {
+        case 'metadata':
+            await handleMetadata(data);
+            break;
+        case 'chunk':
+            await handleChunk(data);
+            break;
+        case 'request':
+            await handleResendRequest(data);
+            break;
+    }
+}
+
+async function handleMetadata(meta) {
+    await db.put('metadata', {
+        id: meta.id,
+        name: meta.name,
+        size: meta.size,
+        mime: meta.mime,
+        totalChunks: meta.totalChunks,
+        received: 0
+    });
+    showFileInUI(meta);
+    requestMissingChunks(meta.id);
+}
+
+async function requestMissingChunks(fileId) {
+    const tx = db.transaction('chunks', 'readonly');
+    const received = await tx.store.getAllKeys(IDBKeyRange.bound([fileId, 0], [fileId, Infinity]));
+    const receivedIndices = new Set(received.map(([_, index]) => index));
+    
+    const meta = await db.get('metadata', fileId);
+    const missing = Array.from({length: meta.totalChunks}, (_,i) => i)
+                        .filter(i => !receivedIndices.has(i));
+    
+    while(missing.length) {
+        const batch = missing.splice(0, CONFIG.MAX_PARALLEL);
+        conn.send({ type: 'request', id: fileId, chunks: batch });
+    }
+}
+
+async function handleChunk(chunk) {
+    await db.put('chunks', {
+        fileId: chunk.id,
+        index: chunk.index,
+        data: chunk.data
+    });
+    
+    const meta = await db.get('metadata', chunk.id);
+    meta.received++;
+    await db.put('metadata', meta);
+    
+    updateProgress('receiveProgress', (meta.received / meta.totalChunks) * 100);
+    
+    if(meta.received === meta.totalChunks) {
+        await finalizeFile(meta);
+    }
+}
+
+async function finalizeFile(meta) {
+    const chunks = await db.getAll('chunks', IDBKeyRange.bound([meta.id, 0], [meta.id, Infinity]));
+    chunks.sort((a, b) => a.index - b.index);
+    
+    const blob = new Blob(chunks.map(c => c.data), { type: meta.mime });
+    saveAs(blob, meta.name);
+    
+    // Cleanup
+    await db.delete('metadata', meta.id);
+    await db.delete('chunks', chunks.map(c => [c.fileId, c.index]));
+}
+
+// UI Functions
+function updateStatus(text, status) {
+    const indicator = document.querySelectorAll('.status-indicator');
+    const statusText = document.getElementById('connectionStatus');
+    
+    indicator.forEach(el => el.style.background = status === 'connected' ? '#00ff88' : '#ff0000'));
+    statusText.textContent = text;
+    
+    if(status === 'connected') {
+        navigator.vibrate([100, 50, 100]);
+    } else {
+        navigator.vibrate([200]);
+    }
+}
+
+function updateProgress(barId, percent) {
+    const bar = document.getElementById(barId);
+    bar.style.width = `${percent}%`;
+    bar.style.background = `linear-gradient(90deg, 
+        var(--primary) ${percent}%, 
+        var(--secondary) ${percent + 20}%)`;
+}
+
+function generateQRCode(id) {
+    document.getElementById('senderQr').innerHTML = '';
+    new QRCode(document.getElementById('senderQr'), {
+        text: id,
+        width: 200,
+        height: 200,
+        colorDark: "#00ff88",
+        colorLight: "#001e3c",
+        correctLevel: QRCode.CorrectLevel.H
+    });
+}
+
+// Initialize
+window.addEventListener('load', () => {
+    initializePeer().catch(err => {
+        console.error('Initialization failed:', err);
+        alert('Failed to initialize. Please refresh the page.');
+    });
+});
+
+// Keyboard Shortcuts
+document.addEventListener('keydown', (e) => {
+    if(e.altKey) {
+        switch(e.key.toUpperCase()) {
+            case 'C': connectPeer(); break;
+            case 'T': startTransfer(); break;
+            case 'S': startQRScanner(); break;
+        }
+    }
+});
+</script>
+
+</body>
+</html>
