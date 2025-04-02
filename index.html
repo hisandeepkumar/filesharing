@@ -224,6 +224,13 @@
 <script>
 
 
+const CHUNK_SIZE = 4 * 1024 * 1024; // 4MB chunks
+const MAX_PARALLEL_CHUNKS = 40;
+let peer = null;
+let conn = null;
+const receivedFiles = new Map();
+let videoElement = null;
+
 // Initialize Peer
 function initializePeer() {
     peer = new Peer({
@@ -339,14 +346,6 @@ function setupConnection(connection) {
 
 
 // File Transfer Logic
-const CHUNK_SIZE = 4 * 1024 * 1024; // 4MB chunks
-const MAX_PARALLEL_CHUNKS = 60; // Increased for better speed
-let peer = null;
-let conn = null;
-const receivedFiles = new Map();
-let fileQueue = [];
-
-// File Transfer Logic
 async function processFiles() {
     const files = document.getElementById('fileInput').files;
     if (!files.length) return alert("📁 Select files first!");
@@ -354,7 +353,6 @@ async function processFiles() {
     try {
         for (const file of files) await transferFile(file);
         alert("✅ All files sent!");
-        navigator.vibrate(300); // Vibrate on completion
     } catch(err) {
         alert(`❌ Error: ${err.message}`);
     }
@@ -364,11 +362,17 @@ async function transferFile(file) {
     const fileId = Date.now() + '-' + Math.random().toString(36).slice(2, 8);
     const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
     
+    // Send Metadata
     conn.send({
-        type: 'metadata', id: fileId, name: file.name,
-        size: file.size, mime: file.type, totalChunks
+        type: 'metadata',
+        id: fileId,
+        name: file.name,
+        size: file.size,
+        mime: file.type,
+        totalChunks
     });
 
+    // Parallel Transfer
     const chunks = Array.from({length: totalChunks}, (_,i) => i);
     while(chunks.length) {
         const batch = chunks.splice(0, MAX_PARALLEL_CHUNKS);
@@ -378,11 +382,22 @@ async function transferFile(file) {
 }
 
 async function sendChunk(file, index, fileId) {
-    const start = index * CHUNK_SIZE;
-    const end = Math.min(start + CHUNK_SIZE, file.size);
-    const chunkData = await file.slice(start, end).arrayBuffer();
-    
-    conn.send({ type: 'chunk', id: fileId, index, data: chunkData });
+    return new Promise(resolve => {
+        const reader = new FileReader();
+        const start = index * CHUNK_SIZE;
+        const end = start + CHUNK_SIZE;
+        
+        reader.onload = () => {
+            conn.send({
+                type: 'chunk',
+                id: fileId,
+                index,
+                data: reader.result
+            });
+            resolve();
+        };
+        reader.readAsArrayBuffer(file.slice(start, end));
+    });
 }
 
 // Data Handling
@@ -393,57 +408,27 @@ function handleIncomingData(data) {
 
 function handleMetadata(meta) {
     receivedFiles.set(meta.id, {
-        name: meta.name, chunks: new Array(meta.totalChunks),
-        received: 0, size: meta.size, mime: meta.mime
+        name: meta.name,
+        chunks: new Array(meta.totalChunks),
+        received: 0,
+        size: meta.size,
+        mime: meta.mime
     });
-    fileQueue.push(meta.id);
+    addFileToList(meta);
 }
-
-let chunkQueue = [];
-let updateScheduled = false;
 
 function handleChunk(chunk) {
-    chunkQueue.push(chunk);
-    if (!updateScheduled) {
-        updateScheduled = true;
-        requestAnimationFrame(() => {
-            processChunkQueue();
-            updateScheduled = false;
-        });
-    }
+    const file = receivedFiles.get(chunk.id);
+    file.chunks[chunk.index] = chunk.data;
+    file.received += chunk.data.byteLength;
+
+    const progress = (file.received / file.size) * 100;
+    updateFileProgress(chunk.id, progress);
+    updateProgress('receiveProgress', progress);
+
+    if(file.received >= file.size) finalizeFile(file);
 }
 
-function processChunkQueue() {
-    while (chunkQueue.length) {
-        const chunk = chunkQueue.shift();
-        const file = receivedFiles.get(chunk.id);
-        file.chunks[chunk.index] = chunk.data;
-        file.received += chunk.data.byteLength;
-        
-        const progress = (file.received / file.size) * 100;
-        updateProgress('receiveProgress', progress);
-        
-        if (file.received >= file.size) finalizeFile(file, chunk.id);
-    }
-}
-
-function finalizeFile(file, fileId) {
-    const blob = new Blob(file.chunks, { type: file.mime });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = file.name;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    receivedFiles.delete(fileId);
-    
-    if (fileQueue.length && fileQueue.every(id => !receivedFiles.has(id))) {
-        alert("✅ All files received!");
-        navigator.vibrate(300);
-    }
-}
-
-    
 // UI Functions
 function addFileToList(meta) {
     const div = document.createElement('div');
@@ -516,6 +501,26 @@ function copyID() {
 window.addEventListener('load', initializePeer);
 
 </script>
+
+<!-- Prevent Refresh Scripts -->
+<script>
+    document.addEventListener('touchmove', function(event) {
+        if (event.touches.length > 1) event.preventDefault();
+    }, { passive: false });
+
+    window.addEventListener('keydown', function(event) {
+        if (event.key === 'F5' || (event.ctrlKey && event.key === 'r')) {
+            event.preventDefault();
+        }
+    });
+
+    window.addEventListener('beforeunload', function(event) {
+        event.preventDefault();
+        event.returnValue = '';
+    });
+</script>
+
+
 
 </body>
 </html>
