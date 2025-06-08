@@ -21,9 +21,6 @@
             --success: rgba(0, 230, 118, 0.9);
             --error: rgba(255, 82, 82, 0.9);
             --warning: rgba(255, 204, 0, 0.9);
-            --pink: rgba(255, 105, 180, 0.8);
-            --purple: rgba(138, 43, 226, 0.8);
-            --blue: rgba(30, 144, 255, 0.8);
         }
 
         * {
@@ -76,10 +73,10 @@
         h1 {
             font-size: 2.8rem;
             font-weight: 700;
-            background: linear-gradient(to right, var(--pink), var(--purple));
+            background: linear-gradient(to right, #00ff88, #00ddff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 20px rgba(255, 105, 180, 0.3);
+            text-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
             letter-spacing: -0.5px;
         }
 
@@ -133,7 +130,7 @@
 
         .panel-header i {
             font-size: 1.8rem;
-            background: linear-gradient(to right, var(--pink), var(--purple));
+            background: linear-gradient(to right, var(--primary), #00ddff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -153,15 +150,6 @@
             gap: 12px;
             font-size: 1.1rem;
             border: 1px solid var(--glass-border);
-            transition: all 0.3s ease;
-        }
-
-        .id-box.connected {
-            opacity: 0;
-            height: 0;
-            padding: 0;
-            margin: 0;
-            overflow: hidden;
         }
 
         .id-box strong {
@@ -179,11 +167,11 @@
         }
 
         .btn {
-            background: var(--pink);
-            color: white;
+            background: var(--primary);
+            color: #002850;
             border: none;
-            padding: 14px 25px;
-            border-radius: 50px;
+            padding: 14px 20px;
+            border-radius: 12px;
             cursor: pointer;
             font-weight: 600;
             transition: all 0.3s;
@@ -193,61 +181,36 @@
             gap: 10px;
             font-size: 1rem;
             flex: 1;
-            box-shadow: 0 6px 15px rgba(255, 105, 180, 0.3),
-                        0 -4px 10px rgba(255, 255, 255, 0.1) inset;
-            position: relative;
-            overflow: hidden;
-            z-index: 1;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .btn::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 100%);
-            z-index: -1;
-            transition: opacity 0.3s;
-            opacity: 0.5;
+            box-shadow: 0 4px 15px rgba(0, 255, 136, 0.2);
         }
 
         .btn:hover {
             transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(255, 105, 180, 0.4),
-                        0 -4px 10px rgba(255, 255, 255, 0.15) inset;
-        }
-
-        .btn:active {
-            transform: translateY(1px);
-            box-shadow: 0 2px 10px rgba(255, 105, 180, 0.3),
-                        0 -2px 5px rgba(255, 255, 255, 0.1) inset;
+            box-shadow: 0 6px 20px rgba(0, 255, 136, 0.3);
+            background: var(--primary-dark);
         }
 
         .btn-outline {
             background: transparent;
-            border: 2px solid var(--purple);
-            color: var(--purple);
+            border: 2px solid var(--primary);
+            color: var(--primary);
             box-shadow: none;
         }
 
         .btn-outline:hover {
-            background: rgba(138, 43, 226, 0.1);
+            background: rgba(0, 255, 136, 0.1);
         }
 
         .btn-large {
-            padding: 16px 30px;
+            padding: 16px 24px;
             font-size: 1.1rem;
-            border-radius: 50px;
         }
 
         input {
             width: 100%;
-            padding: 16px 20px;
+            padding: 16px;
             border: 2px solid var(--glass-border);
-            border-radius: 50px;
+            border-radius: 12px;
             background: rgba(0, 30, 60, 0.3);
             color: white;
             font-size: 1rem;
@@ -257,8 +220,8 @@
 
         input:focus {
             outline: none;
-            border-color: var(--pink);
-            box-shadow: 0 0 0 3px rgba(255, 105, 180, 0.2);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.2);
         }
 
         .status {
@@ -302,7 +265,7 @@
 
         .progress-bar {
             height: 100%;
-            background: linear-gradient(90deg, var(--pink), var(--purple));
+            background: linear-gradient(90deg, var(--primary), #00ddff);
             border-radius: 10px;
             transition: width 0.3s ease;
             position: relative;
@@ -332,11 +295,6 @@
             padding: 20px;
             border-radius: 16px;
             border: 1px solid var(--glass-border);
-            min-height: 300px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
         }
 
         #qrScanner {
@@ -347,7 +305,17 @@
             margin: 15px 0;
             overflow: hidden;
             position: relative;
+        }
+
+        #senderScanner {
             display: none;
+            width: 100%;
+            height: 300px;
+            background: rgba(0, 40, 80, 0.4);
+            border-radius: 16px;
+            margin: 15px 0;
+            overflow: hidden;
+            position: relative;
         }
 
         .scanner-frame {
@@ -357,7 +325,7 @@
             transform: translate(-50%, -50%);
             width: 70%;
             height: 70%;
-            border: 3px solid var(--pink);
+            border: 3px solid var(--primary);
             border-radius: 12px;
             box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.5);
             z-index: 10;
@@ -376,7 +344,7 @@
 
         .file-icon {
             font-size: 2rem;
-            color: var(--pink);
+            color: var(--primary);
         }
 
         .file-info {
@@ -453,7 +421,7 @@
         }
 
         .stats-value {
-            color: var(--pink);
+            color: var(--primary);
             font-weight: 500;
         }
 
@@ -473,6 +441,39 @@
 
         .link-input {
             flex-grow: 1;
+        }
+        
+        /* File drop zone */
+        .drop-zone {
+            border: 2px dashed var(--primary);
+            border-radius: 16px;
+            padding: 40px 20px;
+            text-align: center;
+            margin: 20px 0;
+            transition: all 0.3s;
+            background: rgba(0, 40, 80, 0.2);
+            cursor: pointer;
+        }
+        
+        .drop-zone:hover, .drop-zone.active {
+            background: rgba(0, 40, 80, 0.4);
+            border-color: var(--primary-dark);
+        }
+        
+        .drop-zone i {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+        
+        .drop-zone p {
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .drop-zone .hint {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
         }
 
         @media (max-width: 900px) {
@@ -511,6 +512,7 @@
             }
         }
    
+        
         /* Added style for ID generation spinner */
         .id-generating {
             display: inline-flex;
@@ -521,9 +523,9 @@
         .spinner {
             width: 20px;
             height: 20px;
-            border: 3px solid rgba(255, 105, 180, 0.3);
+            border: 3px solid rgba(0, 255, 136, 0.3);
             border-radius: 50%;
-            border-top-color: var(--pink);
+            border-top-color: var(--primary);
             animation: spin 1s linear infinite;
         }
         
@@ -536,35 +538,74 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            padding: 14px 25px;
-            border-radius: 50px;
-            font-size: 1rem;
-            font-weight: 600;
+            padding: 12px 20px;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            font-weight: 500;
             margin: 15px 0;
             transition: all 0.3s ease;
             width: 100%;
             justify-content: center;
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid var(--glass-border);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            box-shadow: 
+                0 4px 20px rgba(0, 0, 0, 0.2),
+                0 0 0 1px rgba(255, 255, 255, 0.1) inset,
+                0 0 15px rgba(0, 255, 136, 0.1) inset;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        
+        .status-pill::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(255, 255, 255, 0.2), 
+                transparent);
+            animation: wave 3s linear infinite;
+            z-index: -1;
+        }
+        
+        @keyframes wave {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
         }
         
         .status-pill.connected {
             background: rgba(0, 230, 118, 0.15);
             color: var(--success);
             border: 1px solid var(--success);
+            box-shadow: 
+                0 4px 20px rgba(0, 200, 100, 0.2),
+                0 0 0 1px rgba(0, 255, 136, 0.2) inset,
+                0 0 15px rgba(0, 255, 136, 0.2) inset;
         }
         
         .status-pill.connecting {
             background: rgba(255, 204, 0, 0.15);
             color: var(--warning);
             border: 1px solid var(--warning);
+            box-shadow: 
+                0 4px 20px rgba(255, 204, 0, 0.2),
+                0 0 0 1px rgba(255, 204, 0, 0.2) inset,
+                0 0 15px rgba(255, 204, 0, 0.2) inset;
         }
         
         .status-pill.disconnected {
             background: rgba(255, 82, 82, 0.15);
             color: var(--error);
             border: 1px solid var(--error);
+            box-shadow: 
+                0 4px 20px rgba(255, 82, 82, 0.2),
+                0 0 0 1px rgba(255, 82, 82, 0.2) inset,
+                0 0 15px rgba(255, 82, 82, 0.2) inset;
         }
         
         .status-pill.error {
@@ -589,89 +630,15 @@
         .disconnect-btn:hover {
             background: rgba(255, 82, 82, 0.15);
         }
-
-        /* QR Scanner Button */
-        .scanner-btn {
-            background: linear-gradient(135deg, var(--purple), var(--blue));
-            color: white;
-            border: none;
-            padding: 14px 25px;
-            border-radius: 50px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            font-size: 1rem;
-            width: 100%;
-            box-shadow: 0 6px 15px rgba(138, 43, 226, 0.3),
-                        0 -4px 10px rgba(255, 255, 255, 0.1) inset;
-            position: relative;
-            overflow: hidden;
-            z-index: 1;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .scanner-btn::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 100%);
-            z-index: -1;
-            transition: opacity 0.3s;
-            opacity: 0.5;
-        }
-
-        .scanner-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(138, 43, 226, 0.4),
-                        0 -4px 10px rgba(255, 255, 255, 0.15) inset;
-        }
-
-        .scanner-btn:active {
-            transform: translateY(1px);
-            box-shadow: 0 2px 10px rgba(138, 43, 226, 0.3),
-                        0 -2px 5px rgba(255, 255, 255, 0.1) inset;
+        
+        /* 3D effect for status pill */
+        .status-pill {
+            transform: perspective(500px) rotateX(5deg);
+            transform-style: preserve-3d;
         }
         
-        /* Connection controls */
-        .connection-inputs {
-            margin: 20px 0;
-        }
-        
-        /* File upload area */
-        .file-upload {
-            border: 2px dashed var(--glass-border);
-            border-radius: 20px;
-            padding: 40px 20px;
-            text-align: center;
-            margin: 20px 0;
-            transition: all 0.3s;
-            cursor: pointer;
-            background: rgba(0, 40, 80, 0.2);
-        }
-        
-        .file-upload:hover {
-            border-color: var(--pink);
-            background: rgba(138, 43, 226, 0.1);
-        }
-        
-        .file-upload i {
-            font-size: 3rem;
-            margin-bottom: 15px;
-            background: linear-gradient(to right, var(--pink), var(--purple));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        .file-upload p {
-            color: var(--text-secondary);
-            margin-top: 10px;
+        .status-pill i {
+            filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
         }
     </style>
 </head>
@@ -692,7 +659,7 @@
                 <h2>Send Files</h2>
             </div>
             
-            <div class="id-box" id="idBox">
+            <div class="id-box">
                 <i class="fas fa-key"></i>
                 <strong id="myId">
                     <span class="id-generating">
@@ -713,24 +680,27 @@
             <!-- Connection Controls -->
             <div class="connection-controls" id="senderConnectionControls">
                 <div class="action-buttons">
-                    <button class="scanner-btn" onclick="startQRScanner()">
-                        <i class="fas fa-camera"></i> Scan QR Code
+                    <button class="btn btn-outline" onclick="startSenderQRScanner()">
+                        <i class="fas fa-qrcode"></i> Scan QR
+                    </button>
+                    <button class="btn btn-outline" onclick="copyLink()">
+                        <i class="fas fa-link"></i> Copy Link
                     </button>
                 </div>
                 
-                <div class="qr-container" id="senderQr">
-                    <div id="qrScanner">
-                        <div class="scanner-frame"></div>
-                    </div>
+                <!-- QR Code Container -->
+                <div class="qr-container" id="senderQr"></div>
+                
+                <!-- QR Scanner Container (initially hidden) -->
+                <div id="senderScanner">
+                    <div class="scanner-frame"></div>
                 </div>
                 
-                <div class="connection-inputs">
-                    <input type="text" id="peerId" placeholder="📥 Enter Receiver ID" onkeypress="if(event.key === 'Enter') connectPeer()">
-                    
-                    <button class="btn btn-large" onclick="connectPeer()">
-                        <i class="fas fa-plug"></i> Connect
-                    </button>
-                </div>
+                <input type="text" id="peerId" placeholder="📥 Enter Receiver ID">
+                
+                <button class="btn btn-large" onclick="connectPeer()">
+                    <i class="fas fa-plug"></i> Connect to Receiver
+                </button>
             </div>
             
             <!-- Disconnect Button -->
@@ -738,38 +708,37 @@
                 <i class="fas fa-unlink"></i> Disconnect
             </button>
             
-            <div id="fileSection" style="display: none;">
-                <div class="file-upload" onclick="document.getElementById('fileInput').click()">
-                    <i class="fas fa-cloud-upload-alt"></i>
-                    <h3>Select Files to Send</h3>
-                    <p>Click here or drag and drop files</p>
+            <!-- File Drop Zone -->
+            <div class="drop-zone" id="dropZone">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <p>Drag & Drop files here</p>
+                <p class="hint">or click to select files</p>
+            </div>
+            
+            <input type="file" id="fileInput" multiple hidden>
+            
+            <div id="filePreview" style="margin: 20px 0;"></div>
+            
+            <button class="btn btn-large" onclick="processFiles()">
+                <i class="fas fa-paper-plane"></i> Send Files
+            </button>
+            
+            <div class="progress-container">
+                <div class="progress-label">
+                    <span>Sending progress</span>
+                    <span id="sendPercentage">0%</span>
                 </div>
-                
-                <input type="file" id="fileInput" multiple hidden>
-                
-                <div id="filePreview" style="margin: 20px 0;"></div>
-                
-                <button class="btn btn-large" onclick="processFiles()">
-                    <i class="fas fa-paper-plane"></i> Send Files
-                </button>
-                
-                <div class="progress-container">
-                    <div class="progress-label">
-                        <span>Sending progress</span>
-                        <span id="sendPercentage">0%</span>
-                    </div>
-                    <div class="progress">
-                        <div class="progress-bar" id="sendProgress" style="width: 0%"></div>
-                    </div>
+                <div class="progress">
+                    <div class="progress-bar" id="sendProgress" style="width: 0%"></div>
                 </div>
-                
-                <div class="connection-stats">
-                    <div class="stats-item">
-                        <i class="fas fa-microchip"></i> Connection: <span id="connType" class="stats-value">Establishing...</span>
-                    </div>
-                    <div class="stats-item">
-                        <i class="fas fa-bolt"></i> Speed: <span id="transferSpeed" class="stats-value">0 MB/s</span>
-                    </div>
+            </div>
+            
+            <div class="connection-stats">
+                <div class="stats-item">
+                    <i class="fas fa-microchip"></i> Connection: <span id="connType" class="stats-value">Establishing...</span>
+                </div>
+                <div class="stats-item">
+                    <i class="fas fa-bolt"></i> Speed: <span id="transferSpeed" class="stats-value">0 MB/s</span>
                 </div>
             </div>
         </div>
@@ -781,14 +750,20 @@
                 <h2>Receive Files</h2>
             </div>
             
+            <div class="id-box">
+                <i class="fas fa-signal"></i>
+                <span id="receiveStatus">🟢 Ready to receive files</span>
+            </div>
+            
             <!-- Receiver Status Pill -->
             <div id="receiverStatusPill" class="status-pill">
                 <i class="fas fa-circle"></i> 🟢 Ready to receive files
             </div>
             
             <div class="qr-container">
-                <div id="receiverQr"></div>
-                <p style="margin-top: 15px; color: var(--text-secondary);">Scan this QR code with the sender device</p>
+                <div id="qrScanner">
+                    <div class="scanner-frame"></div>
+                </div>
             </div>
             
             <div id="fileList"></div>
@@ -840,6 +815,7 @@
         const receivedFiles = new Map();
         let videoElement = null;
         let scannerActive = false;
+        let senderScannerActive = false;
         let transferStats = {
             startTime: 0,
             bytesTransferred: 0
@@ -875,11 +851,9 @@
                 peerId = id;
                 document.getElementById('myId').innerHTML = `<span>${id}</span>`;
                 generateQRCode(id);
-                updateStatusPill('connectionStatusPill', 'Ready to connect', '');
+                updateConnectionStatus('🟢 Ready to connect');
                 updateStats('connType', 'Peer established');
-                
-                // Generate QR code for receiver panel
-                generateReceiverQR(id);
+                updateStatusPill('connectionStatusPill', 'Ready to connect', '');
                 
                 // Auto-connect if link has peer ID
                 const urlParams = new URLSearchParams(window.location.search);
@@ -888,6 +862,9 @@
                     document.getElementById('peerId').value = connectTo;
                     setTimeout(() => connectPeer(), 1000);
                 }
+                
+                // Start receiver scanner
+                startReceiverQRScanner();
             });
 
             peer.on('error', err => {
@@ -915,6 +892,7 @@
             });
             
             peer.on('disconnected', () => {
+                updateConnectionStatus('🔴 Connection lost. Reconnecting...');
                 updateStatusPill('connectionStatusPill', 'Connection lost. Reconnecting...', 'disconnected');
                 setTimeout(initializePeer, AUTO_RECONNECT_DELAY);
             });
@@ -929,6 +907,7 @@
                 return;
             }
             
+            updateConnectionStatus('🟡 Connecting to receiver...');
             updateStatusPill('connectionStatusPill', 'Connecting...', 'connecting');
             
             conn = peer.connect(connectTo, {
@@ -945,6 +924,7 @@
             conn.on('error', err => {
                 console.error('Connection Error:', err);
                 showNotification(`Connection error: ${err.message}`, 'error');
+                updateConnectionStatus('🔴 Connection failed');
                 updateStatusPill('connectionStatusPill', `Error: ${err.message}`, 'error');
                 toggleConnectionControls(false);
                 
@@ -958,22 +938,18 @@
         function setupConnection(connection) {
             connection.on('data', handleIncomingData);
             connection.on('close', () => {
+                updateConnectionStatus('🔴 Connection closed');
                 showNotification('Connection closed', 'error');
                 updateStatusPill('connectionStatusPill', 'Disconnected', 'disconnected');
                 updateStatusPill('receiverStatusPill', 'Disconnected', 'disconnected');
                 toggleConnectionControls(false);
             });
             
+            updateConnectionStatus(`🟢 Connected to ${connection.peer.substring(0, 8)}...`);
             updateStatusPill('connectionStatusPill', `Connected to ${connection.peer.substring(0, 8)}...`, 'connected');
             reconnectAttempts = 0;
             updateStats('connType', 'P2P connected');
             toggleConnectionControls(true);
-            
-            // Show file section
-            document.getElementById('fileSection').style.display = 'block';
-            
-            // Hide ID box when connected
-            document.getElementById('idBox').classList.add('connected');
             
             // Trigger vibration on both devices
             vibrateDevice();
@@ -1003,8 +979,6 @@
             } else {
                 controls.classList.remove('hidden');
                 disconnectBtn.style.display = 'none';
-                document.getElementById('fileSection').style.display = 'none';
-                document.getElementById('idBox').classList.remove('connected');
             }
         }
         
@@ -1016,6 +990,7 @@
             }
             
             updateStatusPill('connectionStatusPill', 'Disconnected', 'disconnected');
+            updateConnectionStatus('🔴 Disconnected');
             toggleConnectionControls(false);
             
             // Update receiver status
@@ -1162,39 +1137,69 @@
                 text: id,
                 width: 180,
                 height: 180,
-                colorDark: "#ff69b4",
+                colorDark: "#00ff88",
                 colorLight: "transparent",
                 correctLevel: QRCode.CorrectLevel.H
             });
         }
         
-        function generateReceiverQR(id) {
-            document.getElementById('receiverQr').innerHTML = '';
-            new QRCode(document.getElementById('receiverQr'), {
-                text: id,
-                width: 180,
-                height: 180,
-                colorDark: "#00ddff",
-                colorLight: "transparent",
-                correctLevel: QRCode.CorrectLevel.H
-            });
-        }
-        
-        function startQRScanner() {
-            if (scannerActive) {
-                stopQRScanner();
+        function startSenderQRScanner() {
+            if (senderScannerActive) {
+                stopSenderQRScanner();
                 return;
             }
             
-            scannerActive = true;
-            const scannerDiv = document.getElementById('qrScanner');
+            senderScannerActive = true;
+            const qrDiv = document.getElementById('senderQr');
+            const scannerDiv = document.getElementById('senderScanner');
+            
+            // Hide QR code, show scanner
+            qrDiv.style.display = 'none';
             scannerDiv.style.display = 'block';
             
-            // Clear existing QR code
-            document.getElementById('senderQr').innerHTML = '';
+            // Update button text
+            document.querySelector('.btn-outline .fa-qrcode').parentNode.innerHTML = 
+                '<i class="fas fa-times"></i> Cancel Scan';
+            
+            // Start camera
+            startCamera(scannerDiv, true);
+        }
+        
+        function stopSenderQRScanner() {
+            senderScannerActive = false;
+            const qrDiv = document.getElementById('senderQr');
+            const scannerDiv = document.getElementById('senderScanner');
+            
+            // Show QR code, hide scanner
+            qrDiv.style.display = 'block';
+            scannerDiv.style.display = 'none';
+            
+            // Update button text
+            document.querySelector('.btn-outline .fa-times').parentNode.innerHTML = 
+                '<i class="fas fa-qrcode"></i> Scan QR';
+            
+            // Stop camera
+            if (videoElement && videoElement.srcObject) {
+                videoElement.srcObject.getTracks().forEach(track => track.stop());
+                scannerDiv.removeChild(videoElement);
+                videoElement = null;
+            }
+        }
+        
+        function startReceiverQRScanner() {
+            const scannerDiv = document.getElementById('qrScanner');
+            startCamera(scannerDiv, false);
+        }
+        
+        function startCamera(container, isSender) {
+            if (videoElement) {
+                container.appendChild(videoElement);
+                requestAnimationFrame(() => scanQR(isSender));
+                return;
+            }
             
             videoElement = document.createElement('video');
-            scannerDiv.appendChild(videoElement);
+            container.appendChild(videoElement);
             
             navigator.mediaDevices.getUserMedia({ 
                 video: { facingMode: "environment" } 
@@ -1202,17 +1207,17 @@
                 videoElement.srcObject = stream;
                 videoElement.setAttribute("playsinline", true);
                 videoElement.play();
-                requestAnimationFrame(scanQR);
+                requestAnimationFrame(() => scanQR(isSender));
             }).catch(err => {
                 console.error('Camera error:', err);
                 showNotification('Camera access required for scanning', 'error');
-                scannerActive = false;
+                if (isSender) stopSenderQRScanner();
             });
         }
         
-        function scanQR() {
-            if (!scannerActive || !videoElement || videoElement.readyState !== 4) {
-                requestAnimationFrame(scanQR);
+        function scanQR(isSender) {
+            if (!videoElement || videoElement.readyState !== 4) {
+                requestAnimationFrame(() => scanQR(isSender));
                 return;
             }
 
@@ -1226,22 +1231,83 @@
             const code = jsQR(imageData.data, imageData.width, imageData.height);
 
             if (code) {
-                stopQRScanner();
-                document.getElementById('peerId').value = code.data;
-                connectPeer();
+                if (isSender) {
+                    stopSenderQRScanner();
+                    document.getElementById('peerId').value = code.data;
+                    connectPeer();
+                }
                 showNotification('QR code scanned successfully!', 'success');
             } else {
-                requestAnimationFrame(scanQR);
+                requestAnimationFrame(() => scanQR(isSender));
             }
         }
         
-        function stopQRScanner() {
-            scannerActive = false;
-            if (videoElement && videoElement.srcObject) {
-                videoElement.srcObject.getTracks().forEach(track => track.stop());
+        // File Drag and Drop
+        function setupDragAndDrop() {
+            const dropZone = document.getElementById('dropZone');
+            const fileInput = document.getElementById('fileInput');
+            
+            // Click on drop zone to open file dialog
+            dropZone.addEventListener('click', () => {
+                fileInput.click();
+            });
+            
+            // Highlight drop zone on drag over
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
             }
-            document.getElementById('qrScanner').style.display = 'none';
-            document.getElementById('qrScanner').innerHTML = '<div class="scanner-frame"></div>';
+            
+            // Highlight drop zone on drag over
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => {
+                    dropZone.classList.add('active');
+                }, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => {
+                    dropZone.classList.remove('active');
+                }, false);
+            });
+            
+            // Handle file drop
+            dropZone.addEventListener('drop', (e) => {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                handleFiles(files);
+            }, false);
+            
+            // Handle file input change
+            fileInput.addEventListener('change', () => {
+                handleFiles(fileInput.files);
+            });
+        }
+        
+        function handleFiles(files) {
+            if (!files.length) return;
+            
+            // Update file input
+            const dataTransfer = new DataTransfer();
+            for (let i = 0; i < files.length; i++) {
+                dataTransfer.items.add(files[i]);
+            }
+            document.getElementById('fileInput').files = dataTransfer.files;
+            
+            // Create file previews
+            const preview = document.getElementById('filePreview');
+            preview.innerHTML = '';
+            
+            for (const file of files) {
+                const fileId = Date.now() + '-' + Math.random().toString(36).slice(2, 8);
+                createFilePreview(file, fileId);
+            }
+            
+            showNotification(`${files.length} file(s) selected`, 'success');
         }
         
         // UI Functions
@@ -1264,7 +1330,7 @@
                     <div class="file-name">${file.name}</div>
                     <div class="file-size">${formatFileSize(file.size)}</div>
                 </div>
-                <div class="progress" style="width: 100px">
+                <div class="progress" style="width: 100px; margin-left: 10px;">
                     <div class="progress-bar" style="width: 0%"></div>
                 </div>
             `;
@@ -1311,6 +1377,13 @@
         
         function updateProgress(barId, percent) {
             document.getElementById(barId).style.width = `${percent}%`;
+        }
+        
+        function updateConnectionStatus(text) {
+            const elem = document.getElementById('status');
+            elem.innerHTML = `<i class="fas fa-plug"></i> ${text}`;
+            elem.className = text.includes('🟢') ? 'status connected' : 
+                            text.includes('🟡') ? 'status' : 'status disconnected';
         }
         
         function copyID() {
@@ -1413,6 +1486,7 @@
         // Initialize when page loads
         window.addEventListener('load', function() {
             initializePeer();
+            setupDragAndDrop();
         });
     </script>
 </body>
