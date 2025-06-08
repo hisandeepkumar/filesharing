@@ -640,6 +640,30 @@
         .status-pill i {
             filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
         }
+        
+        /* Simplified receiver panel */
+        .receiver-simplified {
+            text-align: center;
+        }
+        
+        .receiver-simplified .status-pill {
+            margin-top: 30px;
+        }
+        
+        .receiver-simplified .file-item {
+            margin: 10px auto;
+            max-width: 500px;
+        }
+        
+        .receiver-simplified .progress-container {
+            max-width: 500px;
+            margin: 20px auto;
+        }
+        
+        .receiver-simplified .connection-stats {
+            justify-content: center;
+            gap: 20px;
+        }
     </style>
 </head>
 <body>
@@ -696,7 +720,7 @@
                     <div class="scanner-frame"></div>
                 </div>
                 
-                <input type="text" id="peerId" placeholder="📥 Enter Receiver ID">
+                <input type="text" id="peerId" placeholder="📥 Enter Receiver ID (6-digit)" maxlength="6">
                 
                 <button class="btn btn-large" onclick="connectPeer()">
                     <i class="fas fa-plug"></i> Connect to Receiver
@@ -743,30 +767,18 @@
             </div>
         </div>
 
-        <!-- Receiver Panel -->
-        <div class="panel">
+        <!-- Receiver Panel (Simplified) -->
+        <div class="panel receiver-simplified">
             <div class="panel-header">
                 <i class="fas fa-cloud-download-alt"></i>
                 <h2>Receive Files</h2>
             </div>
             
-            <div class="id-box">
-                <i class="fas fa-signal"></i>
-                <span id="receiveStatus">🟢 Ready to receive files</span>
-            </div>
-            
-            <!-- Receiver Status Pill -->
             <div id="receiverStatusPill" class="status-pill">
                 <i class="fas fa-circle"></i> 🟢 Ready to receive files
             </div>
             
-            <div class="qr-container">
-                <div id="qrScanner">
-                    <div class="scanner-frame"></div>
-                </div>
-            </div>
-            
-            <div id="fileList"></div>
+            <div id="fileList" style="margin-top: 30px;"></div>
             
             <div class="progress-container">
                 <div class="progress-label">
@@ -851,20 +863,16 @@
                 peerId = id;
                 document.getElementById('myId').innerHTML = `<span>${id}</span>`;
                 generateQRCode(id);
-                updateConnectionStatus('🟢 Ready to connect');
-                updateStats('connType', 'Peer established');
                 updateStatusPill('connectionStatusPill', 'Ready to connect', '');
+                updateStats('connType', 'Peer established');
                 
                 // Auto-connect if link has peer ID
                 const urlParams = new URLSearchParams(window.location.search);
                 const connectTo = urlParams.get('connect');
                 if (connectTo) {
                     document.getElementById('peerId').value = connectTo;
-                    setTimeout(() => connectPeer(), 1000);
+                    setTimeout(() => connectPeer(), 500);
                 }
-                
-                // Start receiver scanner
-                startReceiverQRScanner();
             });
 
             peer.on('error', err => {
@@ -889,10 +897,10 @@
                 setupConnection(connection);
                 showNotification('Receiver connected!', 'success');
                 updateStatusPill('receiverStatusPill', 'Connected to sender', 'connected');
+                updateStats('receiveConnType', 'Connected');
             });
             
             peer.on('disconnected', () => {
-                updateConnectionStatus('🔴 Connection lost. Reconnecting...');
                 updateStatusPill('connectionStatusPill', 'Connection lost. Reconnecting...', 'disconnected');
                 setTimeout(initializePeer, AUTO_RECONNECT_DELAY);
             });
@@ -907,8 +915,12 @@
                 return;
             }
             
-            updateConnectionStatus('🟡 Connecting to receiver...');
-            updateStatusPill('connectionStatusPill', 'Connecting...', 'connecting');
+            if (connectTo.length !== 6) {
+                showNotification('ID must be 6 digits', 'error');
+                return;
+            }
+            
+            updateStatusPill('connectionStatusPill', 'Connecting to receiver...', 'connecting');
             
             conn = peer.connect(connectTo, {
                 reliable: true,
@@ -919,12 +931,12 @@
             conn.on('open', () => {
                 setupConnection(conn);
                 showNotification('Connected to receiver!', 'success');
+                updateStats('connType', 'P2P connected');
             });
             
             conn.on('error', err => {
                 console.error('Connection Error:', err);
                 showNotification(`Connection error: ${err.message}`, 'error');
-                updateConnectionStatus('🔴 Connection failed');
                 updateStatusPill('connectionStatusPill', `Error: ${err.message}`, 'error');
                 toggleConnectionControls(false);
                 
@@ -938,14 +950,13 @@
         function setupConnection(connection) {
             connection.on('data', handleIncomingData);
             connection.on('close', () => {
-                updateConnectionStatus('🔴 Connection closed');
                 showNotification('Connection closed', 'error');
                 updateStatusPill('connectionStatusPill', 'Disconnected', 'disconnected');
                 updateStatusPill('receiverStatusPill', 'Disconnected', 'disconnected');
+                updateStats('receiveConnType', 'Disconnected');
                 toggleConnectionControls(false);
             });
             
-            updateConnectionStatus(`🟢 Connected to ${connection.peer.substring(0, 8)}...`);
             updateStatusPill('connectionStatusPill', `Connected to ${connection.peer.substring(0, 8)}...`, 'connected');
             reconnectAttempts = 0;
             updateStats('connType', 'P2P connected');
@@ -990,11 +1001,11 @@
             }
             
             updateStatusPill('connectionStatusPill', 'Disconnected', 'disconnected');
-            updateConnectionStatus('🔴 Disconnected');
             toggleConnectionControls(false);
             
             // Update receiver status
             updateStatusPill('receiverStatusPill', 'Ready to receive files', '');
+            updateStats('receiveConnType', 'Disconnected');
         }
         
         // Update status pill
@@ -1016,6 +1027,11 @@
         
         // File transfer functions
         async function processFiles() {
+            if (!conn || !conn.open) {
+                showNotification('Not connected to receiver', 'error');
+                return;
+            }
+            
             const files = document.getElementById('fileInput').files;
             if (!files.length) {
                 showNotification('Please select files first', 'error');
@@ -1184,11 +1200,6 @@
                 scannerDiv.removeChild(videoElement);
                 videoElement = null;
             }
-        }
-        
-        function startReceiverQRScanner() {
-            const scannerDiv = document.getElementById('qrScanner');
-            startCamera(scannerDiv, false);
         }
         
         function startCamera(container, isSender) {
@@ -1379,13 +1390,6 @@
             document.getElementById(barId).style.width = `${percent}%`;
         }
         
-        function updateConnectionStatus(text) {
-            const elem = document.getElementById('status');
-            elem.innerHTML = `<i class="fas fa-plug"></i> ${text}`;
-            elem.className = text.includes('🟢') ? 'status connected' : 
-                            text.includes('🟡') ? 'status' : 'status disconnected';
-        }
-        
         function copyID() {
             if (!peerId) return;
             
@@ -1487,6 +1491,14 @@
         window.addEventListener('load', function() {
             initializePeer();
             setupDragAndDrop();
+            
+            // Auto-connect when 6-digit ID is entered
+            document.getElementById('peerId').addEventListener('input', function() {
+                const id = this.value.trim();
+                if (id.length === 6) {
+                    connectPeer();
+                }
+            });
         });
     </script>
 </body>
