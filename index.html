@@ -9,7 +9,6 @@
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* ... existing CSS styles ... */
         :root {
             --primary: rgba(0, 255, 136, 0.8);
             --primary-dark: rgba(0, 200, 100, 0.9);
@@ -21,6 +20,7 @@
             --text-secondary: rgba(255, 255, 255, 0.7);
             --success: rgba(0, 230, 118, 0.9);
             --error: rgba(255, 82, 82, 0.9);
+            --warning: rgba(255, 204, 0, 0.9);
         }
 
         * {
@@ -489,6 +489,64 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+        
+        /* Status Pill Styles */
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin: 10px 0;
+            transition: all 0.3s ease;
+            width: 100%;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--glass-border);
+        }
+        
+        .status-pill.connected {
+            background: rgba(0, 230, 118, 0.15);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+        
+        .status-pill.connecting {
+            background: rgba(255, 204, 0, 0.15);
+            color: var(--warning);
+            border: 1px solid var(--warning);
+        }
+        
+        .status-pill.disconnected {
+            background: rgba(255, 82, 82, 0.15);
+            color: var(--error);
+            border: 1px solid var(--error);
+        }
+        
+        .status-pill.error {
+            background: rgba(255, 82, 82, 0.25);
+            color: var(--error);
+            border: 1px solid var(--error);
+        }
+
+        /* Hide connection controls when connected */
+        .connection-controls.hidden {
+            display: none;
+        }
+
+        /* Disconnect button styling */
+        .disconnect-btn {
+            background: transparent;
+            color: var(--error);
+            border: 2px solid var(--error);
+            margin-top: 15px;
+        }
+        
+        .disconnect-btn:hover {
+            background: rgba(255, 82, 82, 0.15);
+        }
     </style>
 </head>
 <body>
@@ -521,22 +579,34 @@
                 </button>
             </div>
             
-            <!-- Removed the link input and share button -->
-            <div class="action-buttons">
-                <button class="btn btn-outline" onclick="startQRScanner()">
-                    <i class="fas fa-qrcode"></i> Scan QR
-                </button>
-                <button class="btn btn-outline" onclick="copyLink()">
-                    <i class="fas fa-link"></i> Copy Link
+            <!-- Status Pill -->
+            <div id="connectionStatusPill" class="status-pill disconnected">
+                <i class="fas fa-circle"></i> ❌ Not connected
+            </div>
+            
+            <!-- Connection Controls -->
+            <div class="connection-controls" id="senderConnectionControls">
+                <div class="action-buttons">
+                    <button class="btn btn-outline" onclick="startQRScanner()">
+                        <i class="fas fa-qrcode"></i> Scan QR
+                    </button>
+                    <button class="btn btn-outline" onclick="copyLink()">
+                        <i class="fas fa-link"></i> Copy Link
+                    </button>
+                </div>
+                
+                <div class="qr-container" id="senderQr"></div>
+                
+                <input type="text" id="peerId" placeholder="📥 Enter Receiver ID">
+                
+                <button class="btn btn-large" onclick="connectPeer()">
+                    <i class="fas fa-plug"></i> Connect to Receiver
                 </button>
             </div>
             
-            <div class="qr-container" id="senderQr"></div>
-            
-            <input type="text" id="peerId" placeholder="📥 Enter Receiver ID">
-            
-            <button class="btn btn-large" onclick="connectPeer()">
-                <i class="fas fa-plug"></i> Connect to Receiver
+            <!-- Disconnect Button -->
+            <button id="disconnectBtn" class="btn btn-large disconnect-btn" onclick="disconnectPeer()" style="display: none;">
+                <i class="fas fa-unlink"></i> Disconnect
             </button>
             
             <div id="status" class="status disconnected">
@@ -584,6 +654,11 @@
             <div class="id-box">
                 <i class="fas fa-signal"></i>
                 <span id="receiveStatus">🟢 Ready to receive files</span>
+            </div>
+            
+            <!-- Receiver Status Pill -->
+            <div id="receiverStatusPill" class="status-pill">
+                <i class="fas fa-circle"></i> 🟢 Ready to receive files
             </div>
             
             <div class="qr-container">
@@ -681,6 +756,7 @@
                 generateQRCode(id);
                 updateConnectionStatus('🟢 Ready to connect');
                 updateStats('connType', 'Peer established');
+                updateStatusPill('connectionStatusPill', 'Ready to connect', '');
                 
                 // Auto-connect if link has peer ID
                 const urlParams = new URLSearchParams(window.location.search);
@@ -700,6 +776,7 @@
                     setTimeout(initializePeer, 500);
                 } else {
                     showNotification(`Error: ${err.type}`, 'error');
+                    updateStatusPill('connectionStatusPill', `Error: ${err.type}`, 'error');
                     
                     if (err.type === 'peer-unavailable' || err.type === 'network') {
                         setTimeout(initializePeer, AUTO_RECONNECT_DELAY);
@@ -711,10 +788,12 @@
                 conn = connection;
                 setupConnection(connection);
                 showNotification('Receiver connected!', 'success');
+                updateStatusPill('receiverStatusPill', 'Connected to sender', 'connected');
             });
             
             peer.on('disconnected', () => {
                 updateConnectionStatus('🔴 Connection lost. Reconnecting...');
+                updateStatusPill('connectionStatusPill', 'Connection lost. Reconnecting...', 'disconnected');
                 setTimeout(initializePeer, AUTO_RECONNECT_DELAY);
             });
         }
@@ -724,10 +803,12 @@
             const connectTo = document.getElementById('peerId').value.trim();
             if (!connectTo) {
                 showNotification('Please enter a receiver ID', 'error');
+                updateStatusPill('connectionStatusPill', 'Enter receiver ID', 'error');
                 return;
             }
             
             updateConnectionStatus('🟡 Connecting to receiver...');
+            updateStatusPill('connectionStatusPill', 'Connecting...', 'connecting');
             
             conn = peer.connect(connectTo, {
                 reliable: true,
@@ -744,6 +825,8 @@
                 console.error('Connection Error:', err);
                 showNotification(`Connection error: ${err.message}`, 'error');
                 updateConnectionStatus('🔴 Connection failed');
+                updateStatusPill('connectionStatusPill', `Error: ${err.message}`, 'error');
+                toggleConnectionControls(false);
                 
                 reconnectAttempts++;
                 if (reconnectAttempts <= 3) {
@@ -757,11 +840,78 @@
             connection.on('close', () => {
                 updateConnectionStatus('🔴 Connection closed');
                 showNotification('Connection closed', 'error');
+                updateStatusPill('connectionStatusPill', 'Disconnected', 'disconnected');
+                updateStatusPill('receiverStatusPill', 'Disconnected', 'disconnected');
+                toggleConnectionControls(false);
             });
             
             updateConnectionStatus(`🟢 Connected to ${connection.peer.substring(0, 8)}...`);
+            updateStatusPill('connectionStatusPill', `Connected to ${connection.peer.substring(0, 8)}...`, 'connected');
             reconnectAttempts = 0;
             updateStats('connType', 'P2P connected');
+            toggleConnectionControls(true);
+            
+            // Trigger vibration on both devices
+            vibrateDevice();
+        }
+        
+        // Vibration function
+        function vibrateDevice() {
+            try {
+                // Check if vibration is supported
+                if (navigator.vibrate) {
+                    // Vibrate pattern: 100ms on, 50ms off, 100ms on
+                    navigator.vibrate([100, 50, 100]);
+                }
+            } catch (e) {
+                console.log("Vibration not supported");
+            }
+        }
+        
+        // Toggle connection controls
+        function toggleConnectionControls(connected) {
+            const controls = document.getElementById('senderConnectionControls');
+            const disconnectBtn = document.getElementById('disconnectBtn');
+            
+            if (connected) {
+                controls.classList.add('hidden');
+                disconnectBtn.style.display = 'block';
+            } else {
+                controls.classList.remove('hidden');
+                disconnectBtn.style.display = 'none';
+            }
+        }
+        
+        // Disconnect function
+        function disconnectPeer() {
+            if (conn) {
+                conn.close();
+                conn = null;
+            }
+            
+            updateStatusPill('connectionStatusPill', 'Disconnected', 'disconnected');
+            updateConnectionStatus('🔴 Disconnected');
+            toggleConnectionControls(false);
+            
+            // Update receiver status
+            updateStatusPill('receiverStatusPill', 'Ready to receive files', '');
+        }
+        
+        // Update status pill
+        function updateStatusPill(elementId, text, status) {
+            const pill = document.getElementById(elementId);
+            if (!pill) return;
+            
+            pill.className = `status-pill ${status}`;
+            
+            // Add icon based on status
+            let icon = '';
+            if (status === 'connected') icon = '🔗';
+            else if (status === 'connecting') icon = '🔄';
+            else if (status === 'error') icon = '⚠️';
+            else icon = '❌';
+            
+            pill.innerHTML = `<i class="fas fa-circle"></i> ${icon} ${text}`;
         }
         
         // File transfer functions
@@ -1128,7 +1278,9 @@
         }
         
         // Initialize when page loads
-        window.addEventListener('load', initializePeer);
+        window.addEventListener('load', function() {
+            initializePeer();
+        });
     </script>
 </body>
 </html>
