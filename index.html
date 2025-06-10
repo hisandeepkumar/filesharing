@@ -42,7 +42,6 @@
             position: relative;
         }
 
-        /* Colorful animated background */
         body::before {
             content: "";
             position: absolute;
@@ -51,9 +50,9 @@
             width: 100%;
             height: 100%;
             background: 
-                radial-gradient(circle at 20% 30%, var(--accent1) 0%, transparent 40%),
-                radial-gradient(circle at 80% 70%, var(--accent2) 0%, transparent 40%),
-                radial-gradient(circle at 50% 10%, var(--accent3) 0%, transparent 40%);
+                radial-gradient(circle at 20% 30%, var(--accent1) 0%, transparent 70%),
+                radial-gradient(circle at 80% 70%, var(--accent2) 0%, transparent 70%),
+                radial-gradient(circle at 50% 10%, var(--accent3) 0%, transparent 70%);
             z-index: -2;
             animation: backgroundMove 30s linear infinite;
         }
@@ -66,7 +65,6 @@
             100% { background-position: 0 0, 0 0, 0 0; }
         }
 
-        /* Liquid glass effect overlay */
         body::after {
             content: "";
             position: absolute;
@@ -97,10 +95,7 @@
             padding: 15px 30px;
             border-radius: 50px;
             border: 1px solid var(--glass-border);
-            box-shadow: 
-                0 10px 30px rgba(0, 0, 0, 0.2),
-                0 0 20px rgba(0, 255, 200, 0.1),
-                inset 0 0 15px rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             position: relative;
             overflow: hidden;
         }
@@ -151,10 +146,7 @@
             border-radius: 24px;
             padding: 30px;
             border: 1px solid var(--glass-border);
-            box-shadow: 
-                0 15px 50px rgba(0, 0, 0, 0.3),
-                0 0 30px rgba(0, 200, 255, 0.15),
-                inset 0 0 20px rgba(255, 255, 255, 0.1);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
@@ -175,20 +167,6 @@
         @keyframes rotate {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
-        }
-
-        .panel::after {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border-radius: 24px;
-            box-shadow: 
-                inset 0 0 15px rgba(255, 255, 255, 0.2),
-                inset 0 0 30px rgba(0, 200, 255, 0.1);
-            pointer-events: none;
         }
 
         .panel-header {
@@ -236,9 +214,7 @@
             gap: 12px;
             font-size: 1.1rem;
             border: 1px solid var(--glass-border);
-            box-shadow: 
-                inset 0 0 10px rgba(0, 200, 255, 0.1),
-                0 5px 15px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
             position: relative;
             overflow: hidden;
         }
@@ -274,7 +250,7 @@
             color: #002850;
             border: none;
             padding: 14px 20px;
-            border-radius: 12px;
+            border-radius: 30px;
             cursor: pointer;
             font-weight: 600;
             transition: all 0.3s;
@@ -284,9 +260,7 @@
             gap: 10px;
             font-size: 1rem;
             flex: 1;
-            box-shadow: 
-                0 4px 15px rgba(0, 255, 200, 0.3),
-                inset 0 0 10px rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 15px rgba(0, 255, 200, 0.3);
             position: relative;
             overflow: hidden;
             z-index: 1;
@@ -307,9 +281,7 @@
 
         .btn:hover {
             transform: translateY(-3px);
-            box-shadow: 
-                0 6px 20px rgba(0, 255, 200, 0.4),
-                inset 0 0 15px rgba(255, 255, 255, 0.4);
+            box-shadow: 0 6px 20px rgba(0, 255, 200, 0.4);
             background: var(--primary-dark);
         }
 
@@ -317,16 +289,12 @@
             background: transparent;
             border: 2px solid var(--primary);
             color: var(--primary);
-            box-shadow: 
-                inset 0 0 10px rgba(0, 255, 200, 0.1),
-                0 0 15px rgba(0, 255, 200, 0.1);
+            box-shadow: 0 0 15px rgba(0, 255, 200, 0.1);
         }
 
         .btn-outline:hover {
             background: rgba(0, 255, 200, 0.1);
-            box-shadow: 
-                inset 0 0 15px rgba(0, 255, 200, 0.2),
-                0 0 20px rgba(0, 255, 200, 0.2);
+            box-shadow: 0 0 20px rgba(0, 255, 200, 0.2);
         }
 
         .btn-large {
@@ -344,18 +312,14 @@
             font-size: 1rem;
             margin: 15px 0;
             transition: all 0.3s;
-            box-shadow: 
-                inset 0 0 10px rgba(0, 200, 255, 0.1),
-                0 5px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
             text-shadow: 0 1px 2px rgba(0,0,0,0.3);
         }
 
         input:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 
-                inset 0 0 15px rgba(0, 255, 200, 0.2),
-                0 0 0 3px rgba(0, 255, 200, 0.2);
+            box-shadow: 0 0 0 3px rgba(0, 255, 200, 0.2);
         }
 
         .status {
@@ -372,17 +336,13 @@
         .connected { 
             background: rgba(0, 230, 180, 0.15); 
             border: 1px solid var(--success);
-            box-shadow: 
-                inset 0 0 10px rgba(0, 230, 180, 0.1),
-                0 0 15px rgba(0, 230, 180, 0.1);
+            box-shadow: 0 0 15px rgba(0, 230, 180, 0.1);
         }
 
         .disconnected { 
             background: rgba(255, 100, 120, 0.15); 
             border: 1px solid var(--error);
-            box-shadow: 
-                inset 0 0 10px rgba(255, 100, 120, 0.1),
-                0 0 15px rgba(255, 100, 120, 0.1);
+            box-shadow: 0 0 15px rgba(255, 100, 120, 0.1);
         }
 
         .progress-container {
@@ -403,9 +363,7 @@
             background: rgba(0, 61, 122, 0.4);
             border-radius: 10px;
             overflow: hidden;
-            box-shadow: 
-                inset 0 0 5px rgba(0, 0, 0, 0.3),
-                0 2px 5px rgba(0, 0, 0, 0.1);
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
         }
 
         .progress-bar {
@@ -414,9 +372,7 @@
             border-radius: 10px;
             transition: width 0.3s ease;
             position: relative;
-            box-shadow: 
-                inset 0 0 10px rgba(255, 255, 255, 0.3),
-                0 0 10px rgba(0, 255, 200, 0.3);
+            box-shadow: 0 0 10px rgba(0, 255, 200, 0.3);
         }
 
         .progress-bar::after {
@@ -448,9 +404,7 @@
             padding: 20px;
             border-radius: 16px;
             border: 1px solid var(--glass-border);
-            box-shadow: 
-                inset 0 0 10px rgba(0, 200, 255, 0.1),
-                0 5px 15px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
 
         #qrScanner {
@@ -461,9 +415,7 @@
             margin: 15px 0;
             overflow: hidden;
             position: relative;
-            box-shadow: 
-                inset 0 0 10px rgba(0, 200, 255, 0.1),
-                0 5px 15px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
 
         #senderScanner {
@@ -475,9 +427,7 @@
             margin: 15px 0;
             overflow: hidden;
             position: relative;
-            box-shadow: 
-                inset 0 0 10px rgba(0, 200, 255, 0.1),
-                0 5px 15px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
 
         .scanner-frame {
@@ -502,9 +452,7 @@
             align-items: center;
             gap: 15px;
             border: 1px solid var(--glass-border);
-            box-shadow: 
-                inset 0 0 10px rgba(0, 200, 255, 0.1),
-                0 5px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
             position: relative;
             overflow: hidden;
         }
@@ -553,10 +501,7 @@
             background: var(--glass);
             backdrop-filter: blur(20px);
             border: 1px solid var(--glass-border);
-            box-shadow: 
-                0 10px 30px rgba(0,0,0,0.3),
-                0 0 20px rgba(0, 200, 255, 0.2),
-                inset 0 0 10px rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
             display: flex;
             align-items: center;
             gap: 15px;
@@ -634,8 +579,7 @@
         .link-input {
             flex-grow: 1;
         }
-        
-        /* File drop zone */
+
         .drop-zone {
             border: 2px dashed var(--primary);
             border-radius: 16px;
@@ -647,11 +591,9 @@
             cursor: pointer;
             position: relative;
             overflow: hidden;
-            box-shadow: 
-                inset 0 0 10px rgba(0, 200, 255, 0.1),
-                0 5px 15px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
-        
+
         .drop-zone::before {
             content: "";
             position: absolute;
@@ -662,28 +604,26 @@
             background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
             animation: wave 3s linear infinite;
         }
-        
+
         .drop-zone:hover, .drop-zone.active {
             background: rgba(0, 40, 80, 0.4);
             border-color: var(--primary-dark);
-            box-shadow: 
-                inset 0 0 15px rgba(0, 255, 200, 0.2),
-                0 0 20px rgba(0, 255, 200, 0.3);
+            box-shadow: 0 0 20px rgba(0, 255, 200, 0.3);
         }
-        
+
         .drop-zone i {
             font-size: 3rem;
             color: var(--primary);
             margin-bottom: 15px;
             filter: drop-shadow(0 0 10px rgba(0, 255, 200, 0.3));
         }
-        
+
         .drop-zone p {
             margin-bottom: 10px;
             font-size: 1.1rem;
             text-shadow: 0 1px 2px rgba(0,0,0,0.3);
         }
-        
+
         .drop-zone .hint {
             color: var(--text-secondary);
             font-size: 0.9rem;
@@ -694,47 +634,25 @@
             .container {
                 grid-template-columns: 1fr;
             }
-            
-            h1 {
-                font-size: 2.2rem;
-            }
-            
-            .panel {
-                padding: 25px;
-            }
+            h1 { font-size: 2.2rem; }
+            .panel { padding: 25px; }
         }
 
         @media (max-width: 600px) {
-            body {
-                padding: 15px;
-            }
-            
-            h1 {
-                font-size: 1.8rem;
-            }
-            
-            h2 {
-                font-size: 1.5rem;
-            }
-            
-            .action-buttons {
-                flex-direction: column;
-            }
-            
-            .logo {
-                padding: 12px 20px;
-            }
+            body { padding: 15px; }
+            h1 { font-size: 1.8rem; }
+            h2 { font-size: 1.5rem; }
+            .action-buttons { flex-direction: column; }
+            .logo { padding: 12px 20px; }
         }
-   
-        
-        /* Added style for ID generation spinner */
+
         .id-generating {
             display: inline-flex;
             align-items: center;
             gap: 10px;
             text-shadow: 0 1px 2px rgba(0,0,0,0.3);
         }
-        
+
         .spinner {
             width: 20px;
             height: 20px;
@@ -744,12 +662,11 @@
             animation: spin 1s linear infinite;
             filter: drop-shadow(0 0 3px rgba(0, 255, 200, 0.3));
         }
-        
+
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
-        
-        /* Status Pill Styles */
+
         .status-pill {
             display: inline-flex;
             align-items: center;
@@ -767,13 +684,10 @@
             position: relative;
             overflow: hidden;
             z-index: 1;
-            box-shadow: 
-                0 4px 20px rgba(0, 0, 0, 0.2),
-                0 0 0 1px rgba(255, 255, 255, 0.1) inset,
-                0 0 15px rgba(0, 255, 200, 0.1) inset;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
             text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
         }
-        
+
         .status-pill::before {
             content: '';
             position: absolute;
@@ -781,92 +695,73 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, 
-                transparent, 
-                rgba(255, 255, 255, 0.2), 
-                transparent);
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
             animation: wave 3s linear infinite;
             z-index: -1;
         }
-        
+
         .status-pill.connected {
             background: rgba(0, 230, 180, 0.15);
             color: var(--success);
             border: 1px solid var(--success);
-            box-shadow: 
-                0 4px 20px rgba(0, 200, 180, 0.2),
-                0 0 0 1px rgba(0, 255, 200, 0.2) inset,
-                0 0 15px rgba(0, 255, 200, 0.2) inset;
+            box-shadow: 0 4px 20px rgba(0, 200, 180, 0.2);
         }
-        
+
         .status-pill.connecting {
             background: rgba(255, 220, 100, 0.15);
             color: var(--warning);
             border: 1px solid var(--warning);
-            box-shadow: 
-                0 4px 20px rgba(255, 220, 100, 0.2),
-                0 0 0 1px rgba(255, 220, 100, 0.2) inset,
-                0 0 15px rgba(255, 220, 100, 0.2) inset;
+            box-shadow: 0 4px 20px rgba(255, 220, 100, 0.2);
         }
-        
+
         .status-pill.disconnected {
             background: rgba(255, 100, 120, 0.15);
             color: var(--error);
             border: 1px solid var(--error);
-            box-shadow: 
-                0 4px 20px rgba(255, 100, 120, 0.2),
-                0 0 0 1px rgba(255, 100, 120, 0.2) inset,
-                0 0 15px rgba(255, 100, 120, 0.2) inset;
+            box-shadow: 0 4px 20px rgba(255, 100, 120, 0.2);
         }
-        
+
         .status-pill.error {
             background: rgba(255, 100, 120, 0.25);
             color: var(--error);
             border: 1px solid var(--error);
         }
 
-        /* Hide connection controls when connected */
         .connection-controls.hidden {
             display: none;
         }
 
-        /* Disconnect button styling */
         .disconnect-btn {
             background: transparent;
             color: var(--error);
             border: 2px solid var(--error);
             margin-top: 15px;
-            box-shadow: 
-                inset 0 0 10px rgba(255, 100, 120, 0.1),
-                0 0 15px rgba(255, 100, 120, 0.1);
+            box-shadow: 0 0 15px rgba(255, 100, 120, 0.1);
         }
-        
+
         .disconnect-btn:hover {
             background: rgba(255, 100, 120, 0.15);
-            box-shadow: 
-                inset 0 0 15px rgba(255, 100, 120, 0.2),
-                0 0 20px rgba(255, 100, 120, 0.2);
+            box-shadow: 0 0 20px rgba(255, 100, 120, 0.2);
         }
-        
-        /* Simplified receiver panel */
+
         .receiver-simplified {
             text-align: center;
         }
-        
+
         .receiver-simplified .status-pill {
             margin-top: 30px;
         }
-        
+
         .receiver-simplified .file-item {
             margin: 10px auto;
             max-width: 500px;
         }
-        
+
         .receiver-simplified .progress-container {
             max-width: 500px;
             margin: 20px auto;
         }
-        
+
         .receiver-simplified .connection-stats {
             justify-content: center;
             gap: 20px;
@@ -883,7 +778,6 @@
     </div>
     
     <div class="container">
-        <!-- Sender Panel -->
         <div class="panel">
             <div class="panel-header">
                 <i class="fas fa-cloud-upload-alt"></i>
@@ -903,12 +797,10 @@
                 </button>
             </div>
             
-            <!-- Status Pill -->
             <div id="connectionStatusPill" class="status-pill disconnected">
                 <i class="fas fa-circle"></i> ❌ Not connected
             </div>
             
-            <!-- Connection Controls -->
             <div class="connection-controls" id="senderConnectionControls">
                 <div class="action-buttons">
                     <button class="btn btn-outline" onclick="startSenderQRScanner()">
@@ -919,10 +811,8 @@
                     </button>
                 </div>
                 
-                <!-- QR Code Container -->
                 <div class="qr-container" id="senderQr"></div>
                 
-                <!-- QR Scanner Container (initially hidden) -->
                 <div id="senderScanner">
                     <div class="scanner-frame"></div>
                 </div>
@@ -934,12 +824,10 @@
                 </button>
             </div>
             
-            <!-- Disconnect Button -->
             <button id="disconnectBtn" class="btn btn-large disconnect-btn" onclick="disconnectPeer()" style="display: none;">
                 <i class="fas fa-unlink"></i> Disconnect
             </button>
             
-            <!-- File Drop Zone -->
             <div class="drop-zone" id="dropZone">
                 <i class="fas fa-cloud-upload-alt"></i>
                 <p>Drag & Drop files here</p>
@@ -950,7 +838,7 @@
             
             <div id="filePreview" style="margin: 20px 0;"></div>
             
-            <button class="btn btn-large" onclick="processFiles()">
+            <button class="btn btn-large" onclick="processFiles()" style="background: var(--primary); color: #002850; border-radius: 30px;">
                 <i class="fas fa-paper-plane"></i> Send Files
             </button>
             
@@ -974,7 +862,6 @@
             </div>
         </div>
 
-        <!-- Receiver Panel (Simplified) -->
         <div class="panel receiver-simplified">
             <div class="panel-header">
                 <i class="fas fa-cloud-download-alt"></i>
@@ -1022,12 +909,10 @@
     </div>
 
     <script>
-        // Configuration
-        const CHUNK_SIZE = 16 * 1024 * 1024; // 16MB chunks for large files
+        const CHUNK_SIZE = 16 * 1024 * 1024;
         const MAX_PARALLEL_CHUNKS = 10;
-        const AUTO_RECONNECT_DELAY = 3000; // 3 seconds
-        
-        // Global variables
+        const AUTO_RECONNECT_DELAY = 3000;
+
         let peer = null;
         let conn = null;
         let peerId = null;
@@ -1035,32 +920,22 @@
         let videoElement = null;
         let scannerActive = false;
         let senderScannerActive = false;
-        let transferStats = {
-            startTime: 0,
-            bytesTransferred: 0
-        };
+        let transferStats = { startTime: 0, bytesTransferred: 0 };
         let reconnectAttempts = 0;
         let idGenerationAttempts = 0;
-        
-        // Generate short 6-digit ID
+
         function generateShortId() {
             return Math.floor(100000 + Math.random() * 900000).toString();
         }
-        
-        // Initialize Peer
+
         function initializePeer() {
             const shortId = generateShortId();
-            
             peer = new Peer(shortId, {
                 config: {
                     iceServers: [
                         { urls: 'stun:stun.l.google.com:19302' },
                         { urls: 'stun:global.stun.twilio.com:3478' },
-                        { 
-                            urls: 'turn:numb.viagenie.ca',
-                            username: 'webrtc@live.com',
-                            credential: 'muazkh'
-                        }
+                        { urls: 'turn:numb.viagenie.ca', username: 'webrtc@live.com', credential: 'muazkh' }
                     ]
                 },
                 debug: 0
@@ -1072,8 +947,6 @@
                 generateQRCode(id);
                 updateStatusPill('connectionStatusPill', 'Ready to connect', '');
                 updateStats('connType', 'Peer established');
-                
-                // Auto-connect if link has peer ID
                 const urlParams = new URLSearchParams(window.location.search);
                 const connectTo = urlParams.get('connect');
                 if (connectTo) {
@@ -1084,15 +957,12 @@
 
             peer.on('error', err => {
                 console.error('Peer Error:', err);
-                
-                // Handle ID collision by generating a new ID
                 if (err.type === 'unavailable-id' && idGenerationAttempts < 5) {
                     idGenerationAttempts++;
                     setTimeout(initializePeer, 500);
                 } else {
                     showNotification(`Error: ${err.type}`, 'error');
                     updateStatusPill('connectionStatusPill', `Error: ${err.type}`, 'error');
-                    
                     if (err.type === 'peer-unavailable' || err.type === 'network') {
                         setTimeout(initializePeer, AUTO_RECONNECT_DELAY);
                     }
@@ -1106,14 +976,13 @@
                 updateStatusPill('receiverStatusPill', 'Connected to sender', 'connected');
                 updateStats('receiveConnType', 'Connected');
             });
-            
+
             peer.on('disconnected', () => {
                 updateStatusPill('connectionStatusPill', 'Connection lost. Reconnecting...', 'disconnected');
                 setTimeout(initializePeer, AUTO_RECONNECT_DELAY);
             });
         }
-        
-        // Connection management
+
         function connectPeer() {
             const connectTo = document.getElementById('peerId').value.trim();
             if (!connectTo) {
@@ -1121,39 +990,29 @@
                 updateStatusPill('connectionStatusPill', 'Enter receiver ID', 'error');
                 return;
             }
-            
             if (connectTo.length !== 6) {
                 showNotification('ID must be 6 digits', 'error');
                 return;
             }
-            
             updateStatusPill('connectionStatusPill', 'Connecting to receiver...', 'connecting');
-            
-            conn = peer.connect(connectTo, {
-                reliable: true,
-                serialization: 'binary',
-                metadata: { type: 'sender' }
-            });
-            
+            conn = peer.connect(connectTo, { reliable: true, serialization: 'binary', metadata: { type: 'sender' } });
             conn.on('open', () => {
                 setupConnection(conn);
                 showNotification('Connected to receiver!', 'success');
                 updateStats('connType', 'P2P connected');
             });
-            
             conn.on('error', err => {
                 console.error('Connection Error:', err);
                 showNotification(`Connection error: ${err.message}`, 'error');
                 updateStatusPill('connectionStatusPill', `Error: ${err.message}`, 'error');
                 toggleConnectionControls(false);
-                
                 reconnectAttempts++;
                 if (reconnectAttempts <= 3) {
                     setTimeout(() => connectPeer(), AUTO_RECONNECT_DELAY);
                 }
             });
         }
-        
+
         function setupConnection(connection) {
             connection.on('data', handleIncomingData);
             connection.on('close', () => {
@@ -1163,34 +1022,26 @@
                 updateStats('receiveConnType', 'Disconnected');
                 toggleConnectionControls(false);
             });
-            
             updateStatusPill('connectionStatusPill', `Connected to ${connection.peer.substring(0, 8)}...`, 'connected');
             reconnectAttempts = 0;
             updateStats('connType', 'P2P connected');
             toggleConnectionControls(true);
-            
-            // Trigger vibration on both devices
             vibrateDevice();
         }
-        
-        // Vibration function
+
         function vibrateDevice() {
             try {
-                // Check if vibration is supported
                 if (navigator.vibrate) {
-                    // Vibrate pattern: 100ms on, 50ms off, 100ms on
                     navigator.vibrate([100, 50, 100]);
                 }
             } catch (e) {
                 console.log("Vibration not supported");
             }
         }
-        
-        // Toggle connection controls
+
         function toggleConnectionControls(connected) {
             const controls = document.getElementById('senderConnectionControls');
             const disconnectBtn = document.getElementById('disconnectBtn');
-            
             if (connected) {
                 controls.classList.add('hidden');
                 disconnectBtn.style.display = 'block';
@@ -1199,229 +1050,148 @@
                 disconnectBtn.style.display = 'none';
             }
         }
-        
-        // Disconnect function
+
         function disconnectPeer() {
             if (conn) {
                 conn.close();
                 conn = null;
             }
-            
             updateStatusPill('connectionStatusPill', 'Disconnected', 'disconnected');
             toggleConnectionControls(false);
-            
-            // Update receiver status
             updateStatusPill('receiverStatusPill', 'Ready to receive files', '');
             updateStats('receiveConnType', 'Disconnected');
         }
-        
-        // Update status pill
+
         function updateStatusPill(elementId, text, status) {
             const pill = document.getElementById(elementId);
             if (!pill) return;
-            
             pill.className = `status-pill ${status}`;
-            
-            // Add icon based on status
-            let icon = '';
-            if (status === 'connected') icon = '🔗';
-            else if (status === 'connecting') icon = '🔄';
-            else if (status === 'error') icon = '⚠️';
-            else icon = '❌';
-            
+            let icon = status === 'connected' ? '🔗' : status === 'connecting' ? '🔄' : status === 'error' ? '⚠️' : '❌';
             pill.innerHTML = `<i class="fas fa-circle"></i> ${icon} ${text}`;
         }
-        
-        // File transfer functions
+
         async function processFiles() {
             if (!conn || !conn.open) {
                 showNotification('Not connected to receiver', 'error');
                 return;
             }
-            
             const files = document.getElementById('fileInput').files;
             if (!files.length) {
                 showNotification('Please select files first', 'error');
                 return;
             }
-            
             try {
                 transferStats.startTime = Date.now();
                 transferStats.bytesTransferred = 0;
-                
                 for (const file of files) {
                     await transferFile(file);
                 }
-                
                 showNotification('All files sent successfully!', 'success');
             } catch(err) {
                 showNotification(`Error: ${err.message}`, 'error');
             }
         }
-        
+
         async function transferFile(file) {
             const fileId = Date.now() + '-' + Math.random().toString(36).slice(2, 8);
             const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
-            
-            // Send file metadata
-            conn.send({
-                type: 'metadata',
-                id: fileId,
-                name: file.name,
-                size: file.size,
-                mime: file.type,
-                totalChunks
-            });
-            
-            // Create file preview
+            conn.send({ type: 'metadata', id: fileId, name: file.name, size: file.size, mime: file.type, totalChunks });
             createFilePreview(file, fileId);
-            
-            // Send file in parallel chunks
             const chunks = Array.from({length: totalChunks}, (_, i) => i);
             while(chunks.length) {
                 const batch = chunks.splice(0, MAX_PARALLEL_CHUNKS);
                 await Promise.all(batch.map(i => sendChunk(file, i, fileId)));
-                
                 const transferred = totalChunks - chunks.length;
                 const progress = Math.min(100, (transferred / totalChunks) * 100);
                 updateProgress('sendProgress', progress);
                 document.getElementById('sendPercentage').textContent = `${Math.round(progress)}%`;
-                
-                // Update transfer speed
                 updateTransferSpeed();
             }
         }
-        
+
         async function sendChunk(file, index, fileId) {
             return new Promise(resolve => {
                 const reader = new FileReader();
                 const start = index * CHUNK_SIZE;
                 const end = Math.min(start + CHUNK_SIZE, file.size);
                 const chunk = file.slice(start, end);
-                
                 reader.onload = () => {
-                    conn.send({
-                        type: 'chunk',
-                        id: fileId,
-                        index,
-                        data: reader.result
-                    });
-                    
+                    conn.send({ type: 'chunk', id: fileId, index, data: reader.result });
                     transferStats.bytesTransferred += chunk.size;
                     resolve();
                 };
-                
                 reader.readAsArrayBuffer(chunk);
             });
         }
-        
+
         function handleIncomingData(data) {
             if (data.type === 'metadata') handleMetadata(data);
             if (data.type === 'chunk') handleChunk(data);
         }
-        
+
         function handleMetadata(meta) {
-            receivedFiles.set(meta.id, {
-                name: meta.name,
-                chunks: new Array(meta.totalChunks),
-                received: 0,
-                size: meta.size,
-                mime: meta.mime,
-                startTime: Date.now()
-            });
+            receivedFiles.set(meta.id, { name: meta.name, chunks: new Array(meta.totalChunks), received: 0, size: meta.size, mime: meta.mime, startTime: Date.now() });
             addFileToList(meta);
         }
-        
+
         function handleChunk(chunk) {
             const file = receivedFiles.get(chunk.id);
             if (!file) return;
-            
             file.chunks[chunk.index] = chunk.data;
             file.received += chunk.data.byteLength;
-            
             const progress = Math.min(100, (file.received / file.size) * 100);
             updateFileProgress(chunk.id, progress);
             updateProgress('receiveProgress', progress);
             document.getElementById('receivePercentage').textContent = `${Math.round(progress)}%`;
-            
-            // Update transfer speed
             updateReceiveSpeed(file);
-            
             if (file.received >= file.size) {
                 finalizeFile(file);
                 updateStats('receiveSpeed', 'Complete');
             }
         }
-        
-        // QR Code functions
+
         function generateQRCode(id) {
             document.getElementById('senderQr').innerHTML = '';
-            new QRCode(document.getElementById('senderQr'), {
-                text: id,
-                width: 180,
-                height: 180,
-                colorDark: "#00ffcc",
-                colorLight: "transparent",
-                correctLevel: QRCode.CorrectLevel.H
-            });
+            new QRCode(document.getElementById('senderQr'), { text: id, width: 180, height: 180, colorDark: "#00ffcc", colorLight: "transparent", correctLevel: QRCode.CorrectLevel.H });
         }
-        
+
         function startSenderQRScanner() {
             if (senderScannerActive) {
                 stopSenderQRScanner();
                 return;
             }
-            
             senderScannerActive = true;
             const qrDiv = document.getElementById('senderQr');
             const scannerDiv = document.getElementById('senderScanner');
-            
-            // Hide QR code, show scanner
             qrDiv.style.display = 'none';
             scannerDiv.style.display = 'block';
-            
-            // Update button text
-            document.querySelector('.btn-outline .fa-qrcode').parentNode.innerHTML = 
-                '<i class="fas fa-times"></i> Cancel Scan';
-            
-            // Start camera
+            document.querySelector('.btn-outline .fa-qrcode').parentNode.innerHTML = '<i class="fas fa-times"></i> Cancel Scan';
             startCamera(scannerDiv, true);
         }
-        
+
         function stopSenderQRScanner() {
             senderScannerActive = false;
             const qrDiv = document.getElementById('senderQr');
             const scannerDiv = document.getElementById('senderScanner');
-            
-            // Show QR code, hide scanner
             qrDiv.style.display = 'block';
             scannerDiv.style.display = 'none';
-            
-            // Update button text
-            document.querySelector('.btn-outline .fa-times').parentNode.innerHTML = 
-                '<i class="fas fa-qrcode"></i> Scan QR';
-            
-            // Stop camera
+            document.querySelector('.btn-outline .fa-times').parentNode.innerHTML = '<i class="fas fa-qrcode"></i> Scan QR';
             if (videoElement && videoElement.srcObject) {
                 videoElement.srcObject.getTracks().forEach(track => track.stop());
                 scannerDiv.removeChild(videoElement);
                 videoElement = null;
             }
         }
-        
+
         function startCamera(container, isSender) {
             if (videoElement) {
                 container.appendChild(videoElement);
                 requestAnimationFrame(() => scanQR(isSender));
                 return;
             }
-            
             videoElement = document.createElement('video');
             container.appendChild(videoElement);
-            
-            navigator.mediaDevices.getUserMedia({ 
-                video: { facingMode: "environment" } 
-            }).then(stream => {
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then(stream => {
                 videoElement.srcObject = stream;
                 videoElement.setAttribute("playsinline", true);
                 videoElement.play();
@@ -1432,22 +1202,19 @@
                 if (isSender) stopSenderQRScanner();
             });
         }
-        
+
         function scanQR(isSender) {
             if (!videoElement || videoElement.readyState !== 4) {
                 requestAnimationFrame(() => scanQR(isSender));
                 return;
             }
-
             const canvas = document.createElement('canvas');
             canvas.width = videoElement.videoWidth;
             canvas.height = videoElement.videoHeight;
             const context = canvas.getContext('2d');
-            
             context.drawImage(videoElement, 0, 0);
             const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
             const code = jsQR(imageData.data, imageData.width, imageData.height);
-
             if (code) {
                 if (isSender) {
                     stopSenderQRScanner();
@@ -1459,89 +1226,56 @@
                 requestAnimationFrame(() => scanQR(isSender));
             }
         }
-        
-        // File Drag and Drop
+
         function setupDragAndDrop() {
             const dropZone = document.getElementById('dropZone');
             const fileInput = document.getElementById('fileInput');
-            
-            // Click on drop zone to open file dialog
-            dropZone.addEventListener('click', () => {
-                fileInput.click();
-            });
-            
-            // Highlight drop zone on drag over
+            dropZone.addEventListener('click', () => fileInput.click());
             ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
                 dropZone.addEventListener(eventName, preventDefaults, false);
             });
-            
-            function preventDefaults(e) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-            
-            // Highlight drop zone on drag over
+            function preventDefaults(e) { e.preventDefault(); e.stopPropagation(); }
             ['dragenter', 'dragover'].forEach(eventName => {
-                dropZone.addEventListener(eventName, () => {
-                    dropZone.classList.add('active');
-                }, false);
+                dropZone.addEventListener(eventName, () => dropZone.classList.add('active'), false);
             });
-            
             ['dragleave', 'drop'].forEach(eventName => {
-                dropZone.addEventListener(eventName, () => {
-                    dropZone.classList.remove('active');
-                }, false);
+                dropZone.addEventListener(eventName, () => dropZone.classList.remove('active'), false);
             });
-            
-            // Handle file drop
             dropZone.addEventListener('drop', (e) => {
                 const dt = e.dataTransfer;
                 const files = dt.files;
                 handleFiles(files);
             }, false);
-            
-            // Handle file input change
-            fileInput.addEventListener('change', () => {
-                handleFiles(fileInput.files);
-            });
+            fileInput.addEventListener('change', () => handleFiles(fileInput.files));
         }
-        
+
         function handleFiles(files) {
             if (!files.length) return;
-            
-            // Update file input
             const dataTransfer = new DataTransfer();
             for (let i = 0; i < files.length; i++) {
                 dataTransfer.items.add(files[i]);
             }
             document.getElementById('fileInput').files = dataTransfer.files;
-            
-            // Create file previews
             const preview = document.getElementById('filePreview');
             preview.innerHTML = '';
-            
             for (const file of files) {
                 const fileId = Date.now() + '-' + Math.random().toString(36).slice(2, 8);
                 createFilePreview(file, fileId);
             }
-            
             showNotification(`${files.length} file(s) selected`, 'success');
         }
-        
-        // UI Functions
+
         function createFilePreview(file, fileId) {
             const preview = document.getElementById('filePreview');
             const div = document.createElement('div');
             div.className = 'file-item';
             div.id = `file-preview-${fileId}`;
-            
             const fileType = file.type.split('/')[0];
             let icon = 'file';
             if (fileType === 'image') icon = 'file-image';
             else if (fileType === 'video') icon = 'file-video';
             else if (fileType === 'audio') icon = 'file-audio';
             else if (file.type.includes('pdf')) icon = 'file-pdf';
-            
             div.innerHTML = `
                 <i class="fas fa-${icon} file-icon"></i>
                 <div class="file-info">
@@ -1552,24 +1286,21 @@
                     <div class="progress-bar" style="width: 0%"></div>
                 </div>
             `;
-            
             preview.appendChild(div);
             return div;
         }
-        
+
         function addFileToList(meta) {
             const fileList = document.getElementById('fileList');
             const div = document.createElement('div');
             div.className = 'file-item';
             div.id = `file-${meta.id}`;
-            
             const fileType = meta.mime.split('/')[0];
             let icon = 'file';
             if (fileType === 'image') icon = 'file-image';
             else if (fileType === 'video') icon = 'file-video';
             else if (fileType === 'audio') icon = 'file-audio';
             else if (meta.mime.includes('pdf')) icon = 'file-pdf';
-            
             div.innerHTML = `
                 <i class="fas fa-${icon} file-icon"></i>
                 <div class="file-info">
@@ -1580,10 +1311,9 @@
                     <div class="progress-bar" style="width: 0%"></div>
                 </div>
             `;
-            
             fileList.appendChild(div);
         }
-        
+
         function updateFileProgress(fileId, progress) {
             const elem = document.querySelector(`#file-${fileId} .progress-bar`);
             if (elem) {
@@ -1592,14 +1322,13 @@
                     `${Math.round(progress)}% • ${formatFileSize(receivedFiles.get(fileId).received)} / ${formatFileSize(receivedFiles.get(fileId).size)}`;
             }
         }
-        
+
         function updateProgress(barId, percent) {
             document.getElementById(barId).style.width = `${percent}%`;
         }
-        
+
         function copyID() {
             if (!peerId) return;
-            
             navigator.clipboard.writeText(peerId).then(() => {
                 showNotification('ID copied to clipboard!', 'success');
             }).catch(err => {
@@ -1612,30 +1341,25 @@
                 showNotification('ID copied to clipboard!', 'success');
             });
         }
-        
+
         function copyLink() {
             if (!peerId) {
                 showNotification('ID not generated yet', 'error');
                 return;
             }
-            
             const link = `${window.location.origin}${window.location.pathname}?connect=${peerId}`;
             navigator.clipboard.writeText(link).then(() => {
                 showNotification('Shareable link copied!', 'success');
             });
         }
-        
+
         function showNotification(message, type) {
             const notification = document.getElementById('notification');
             const icon = notification.querySelector('i');
             const title = notification.querySelector('h3');
             const content = notification.querySelector('p');
-            
-            // Set notification content
             title.textContent = type === 'success' ? 'Success!' : 'Error!';
             content.textContent = message;
-            
-            // Set icon and color
             if (type === 'success') {
                 icon.className = 'fas fa-check-circle';
                 notification.style.borderLeft = `4px solid var(--success)`;
@@ -1643,68 +1367,53 @@
                 icon.className = 'fas fa-exclamation-circle';
                 notification.style.borderLeft = `4px solid var(--error)`;
             }
-            
-            // Show notification
             notification.classList.add('show');
-            
-            // Auto-hide after 3 seconds
-            setTimeout(() => {
-                notification.classList.remove('show');
-            }, 3000);
+            setTimeout(() => notification.classList.remove('show'), 3000);
         }
-        
+
         function updateTransferSpeed() {
-            const elapsed = (Date.now() - transferStats.startTime) / 1000; // in seconds
-            if (elapsed < 0.1) return; // Avoid division by zero
-            
+            const elapsed = (Date.now() - transferStats.startTime) / 1000;
+            if (elapsed < 0.1) return;
             const bytesPerSec = transferStats.bytesTransferred / elapsed;
-            const speed = bytesPerSec / (1024 * 1024); // in MB/s
+            const speed = bytesPerSec / (1024 * 1024);
             updateStats('transferSpeed', `${speed.toFixed(2)} MB/s`);
         }
-        
+
         function updateReceiveSpeed(file) {
-            const elapsed = (Date.now() - file.startTime) / 1000; // in seconds
-            if (elapsed < 0.1) return; // Avoid division by zero
-            
+            const elapsed = (Date.now() - file.startTime) / 1000;
+            if (elapsed < 0.1) return;
             const bytesPerSec = file.received / elapsed;
-            const speed = bytesPerSec / (1024 * 1024); // in MB/s
+            const speed = bytesPerSec / (1024 * 1024);
             updateStats('receiveSpeed', `${speed.toFixed(2)} MB/s`);
         }
-        
+
         function updateStats(elementId, value) {
             const elem = document.getElementById(elementId);
             if (elem) elem.textContent = value;
         }
-        
+
         function finalizeFile(file) {
             const blob = new Blob(file.chunks, { type: file.mime });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
             link.download = file.name;
             link.click();
-            
-            // Show notification
             showNotification(`File "${file.name}" downloaded!`, 'success');
         }
-        
+
         function formatFileSize(bytes) {
             if (bytes < 1024) return bytes + ' B';
             else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
             else if (bytes < 1073741824) return (bytes / 1048576).toFixed(1) + ' MB';
             else return (bytes / 1073741824).toFixed(1) + ' GB';
         }
-        
-        // Initialize when page loads
+
         window.addEventListener('load', function() {
             initializePeer();
             setupDragAndDrop();
-            
-            // Auto-connect when 6-digit ID is entered
             document.getElementById('peerId').addEventListener('input', function() {
                 const id = this.value.trim();
-                if (id.length === 6) {
-                    connectPeer();
-                }
+                if (id.length === 6) connectPeer();
             });
         });
     </script>
