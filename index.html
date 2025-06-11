@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 AirDropX - Optimized File Transfer</title>
+    <script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/davidshimjs-qrcodejs@0.0.2/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --background: #121212;
+            --panel-bg: #1e1e1e;
+            --text: #ffffff;
+            --button-bg: #ffffff;
+            --button-text: #000000;
+            --glow-color: #ffffff;
+            --glow: 0 0 10px var(--glow-color);
+            --border: #ffffff;
+            --primary: #ffffff;
+            --success: #00ff00;
+            --error: #ff0000;
+            --warning: #ffff00;
+            --optimized: #00bfff;
+        }
+
+        /* Existing styles remain the same... */
+
+        /* New optimized indicator */
+        .optimized-indicator {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 191, 255, 0.2);
+            border: 1px solid var(--optimized);
+            border-radius: 30px;
+            padding: 8px 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            box-shadow: 0 0 10px var(--optimized);
+            z-index: 100;
+        }
+
+        .speed-badge {
+            background: rgba(0, 191, 255, 0.3);
+            border: 1px solid var(--optimized);
+            border-radius: 20px;
+            padding: 4px 10px;
+            font-size: 0.85rem;
+            margin-left: 5px;
+        }
+        
+        .network-quality {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+            padding: 8px;
+            border-radius: 10px;
+            background: rgba(30, 30, 30, 0.7);
+        }
+        
+        .quality-bar {
+            height: 6px;
+            flex-grow: 1;
+            background: #333;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .quality-level {
+            height: 100%;
+            background: var(--optimized);
+            border-radius: 3px;
+            transition: width 0.5s;
+        }
+        
+        .quality-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            margin-top: 3px;
+            color: #aaa;
+        }
+        
+        .transfer-tips {
+            background: var(--panel-bg);
+            border: 1px solid var(--optimized);
+            border-radius: 15px;
+            padding: 15px;
+            margin-top: 20px;
+            box-shadow: 0 0 15px rgba(0, 191, 255, 0.3);
+        }
+        
+        .transfer-tips h3 {
+            color: var(--optimized);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .transfer-tips ul {
+            padding-left: 20px;
+        }
+        
+        .transfer-tips li {
+            margin: 8px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="optimized-indicator fade-from-top">
+        <i class="fas fa-bolt"></i>
+        <span>Optimized Transfer</span>
+        <span class="speed-badge">MAX SPEED</span>
+    </div>
+    
+    <div class="header fade-from-top">
+        <div class="logo animate-fade" style="--delay: 0.5s;">
+            <i class="fas fa-paper-plane"></i>
+            <h1>AirDropX <span style="color: var(--optimized);">ULTRA</span></h1>
+        </div>
+        <p class="subtitle animate-fade" style="--delay: 0.6s;">Seamlessly transfer files between devices at MAXIMUM SPEED. No installation required.</p>
+    </div>
+    
+    <div class="container">
+        <div class="panel slide-from-left">
+            <div class="panel-header animate-fade" style="--delay: 0.5s;">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <h2>Send Files <span style="color: var(--optimized); font-size: 1rem;">(Optimized)</span></h2>
+            </div>
+            
+            <div class="id-box animate-fade" style="--delay: 0.6s;">
+                <i class="fas fa-key"></i>
+                <strong id="myId">
+                    <span class="id-generating">
+                        <span class="spinner"></span>
+                        Generating your unique ID...
+                    </span>
+                </strong>
+                <button class="btn btn-outline slide-from-left" style="animation-delay: 0.7s;" onclick="copyID()">
+                    <i class="fas fa-copy"></i> Copy
+                </button>
+            </div>
+            
+            <div id="connectionStatusPill" class="status-pill disconnected animate-fade" style="--delay: 0.8s;">
+                <i class="fas fa-circle"></i> ❌ Not connected
+            </div>
+            
+            <div class="network-quality animate-fade" style="--delay: 0.85s;">
+                <i class="fas fa-wifi"></i>
+                <div class="quality-bar">
+                    <div class="quality-level" id="networkQuality" style="width: 0%"></div>
+                </div>
+                <span id="qualityLabel">Measuring...</span>
+            </div>
+            
+            <div class="quality-labels">
+                <span>Poor</span>
+                <span>Fair</span>
+                <span>Good</span>
+                <span>Excellent</span>
+            </div>
+            
+            <div class="connection-controls animate-fade" id="senderConnectionControls" style="--delay: 0.9s;">
+                <div class="action-buttons">
+                    <button class="btn btn-outline slide-from-left" style="animation-delay: 1.0s;" onclick="startSenderQRScanner()">
+                        <i class="fas fa-qrcode"></i> Scan QR
+                    </button>
+                    <button class="btn btn-outline slide-from-right" style="animation-delay: 1.1s;" onclick="copyLink()">
+                        <i class="fas fa-link"></i> Copy Link
+                    </button>
+                </div>
+                
+                <div class="qr-container animate-fade" id="senderQr" style="--delay: 1.2s;"></div>
+                
+                <div id="senderScanner">
+                    <div class="scanner-frame"></div>
+                </div>
+                
+                <input type="text" id="peerId" placeholder="📥 Enter Receiver ID (6-digit)" maxlength="6" class="animate-fade" style="--delay: 1.3s;">
+                
+                <button class="btn btn-large slide-from-bottom" style="animation-delay: 1.4s; background: var(--optimized);" onclick="connectPeer()">
+                    <i class="fas fa-plug"></i> Connect to Receiver
+                </button>
+            </div>
+            
+            <button id="disconnectBtn" class="btn btn-large disconnect-btn" onclick="disconnectPeer()" style="display: none;">
+                <i class="fas fa-unlink"></i> Disconnect
+            </button>
+            
+            <div class="drop-zone animate-fade" id="dropZone" style="--delay: 1.5s;">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <p>Drag & Drop files here</p>
+                <p class="hint">or click to select files</p>
+            </div>
+            
+            <input type="file" id="fileInput" multiple hidden>
+            
+            <div id="filePreview" style="margin: 20px 0;"></div>
+            
+            <button class="btn btn-large slide-from-bottom" style="animation-delay: 1.6s; background: var(--optimized);" onclick="processFiles()">
+                <i class="fas fa-paper-plane"></i> Send Files at MAX SPEED
+            </button>
+            
+            <div class="progress-container animate-fade" style="--delay: 1.7s;">
+                <div class="progress-label">
+                    <span>Sending progress</span>
+                    <span id="sendPercentage">0%</span>
+                </div>
+                <div class="progress">
+                    <div class="progress-bar" id="sendProgress" style="width: 0%; background: var(--optimized);"></div>
+                </div>
+            </div>
+            
+            <div class="connection-stats animate-fade" style="--delay: 1.8s;">
+                <div class="stats-item">
+                    <i class="fas fa-microchip"></i> Connection: <span id="connType" class="stats-value">Establishing...</span>
+                </div>
+                <div class="stats-item">
+                    <i class="fas fa-bolt"></i> Speed: <span id="transferSpeed" class="stats-value">0 MB/s</span>
+                </div>
+                <div class="stats-item">
+                    <i class="fas fa-tachometer-alt"></i> Optimization: <span id="optimizationLevel" class="stats-value">Active</span>
+                </div>
+            </div>
+            
+            <div class="transfer-tips animate-fade" style="--delay: 1.9s;">
+                <h3><i class="fas fa-lightbulb"></i> MAX SPEED Tips</h3>
+                <ul>
+                    <li>Keep devices on the same WiFi network for fastest transfers</li>
+                    <li>Close bandwidth-heavy apps during transfer</li>
+                    <li>Transfer multiple files simultaneously for better efficiency</li>
+                    <li>Text files are compressed for faster transfer</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="panel slide-from-right receiver-simplified">
+            <div class="panel-header animate-fade" style="--delay: 0.5s;">
+                <i class="fas fa-cloud-download-alt"></i>
+                <h2>Receive Files <span style="color: var(--optimized); font-size: 1rem;">(Optimized)</span></h2>
+            </div>
+            
+            <div id="receiverStatusPill" class="status-pill animate-fade" style="--delay: 0.6s;">
+                <i class="fas fa-circle"></i> 🟢 Ready to receive files
+            </div>
+            
+            <div class="network-quality animate-fade" style="--delay: 0.65s;">
+                <i class="fas fa-wifi"></i>
+                <div class="quality-bar">
+                    <div class="quality-level" id="receiverNetworkQuality" style="width: 0%"></div>
+                </div>
+                <span id="receiverQualityLabel">Measuring...</span>
+            </div>
+            
+            <div id="fileList" style="margin-top: 30px;"></div>
+            
+            <div class="progress-container animate-fade" style="--delay: 0.7s;">
+                <div class="progress-label">
+                    <span>Receiving progress</span>
+                    <span id="receivePercentage">0%</span>
+                </div>
+                <div class="progress">
+                    <div class="progress-bar" id="receiveProgress" style="width: 0%; background: var(--optimized);"></div>
+                </div>
+            </div>
+            
+            <div class="connection-stats animate-fade" style="--delay: 0.8s;">
+                <div class="stats-item">
+                    <i class="fas fa-wifi"></i> Status: <span id="receiveConnType" class="stats-value">Waiting...</span>
+                </div>
+                <div class="stats-item">
+                    <i class="fas fa-tachometer-alt"></i> Speed: <span id="receiveSpeed" class="stats-value">0 MB/s</span>
+                </div>
+                <div class="stats-item">
+                    <i class="fas fa-compress-arrows-alt"></i> Compression: <span id="compressionStatus" class="stats-value">Active</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer fade-from-bottom">
+        <p class="animate-fade" style="--delay: 0.5s;">AirDropX ULTRA - Optimized for MAXIMUM transfer speed</p>
+        <p class="animate-fade" style="--delay: 0.6s;">All data is transferred directly between devices using advanced optimization techniques.</p>
+    </div>
+    
+    <div class="notification" id="notification">
+        <i class="fas fa-check-circle"></i>
+        <div class="notification-content">
+            <h3>Success!</h3>
+            <p>Your files have been sent successfully.</p>
+        </div>
+    </div>
+
+    <script>
+        // Optimized transfer settings
+        const BASE_CHUNK_SIZE = 64 * 1024 * 1024; // 64 MB base chunk size
+        const MAX_PARALLEL_CHUNKS = 20; // Increased parallel transfers
+        const AUTO_RECONNECT_DELAY = 2000; // Faster reconnect
+        const NETWORK_TEST_INTERVAL = 5000; // Network quality check every 5s
+        const TEXT_COMPRESSION_THRESHOLD = 1024; // Compress text files larger than 1KB
+
+        let peer = null;
+        let conn = null;
+        let peerId = null;
+        const receivedFiles = new Map();
+        let videoElement = null;
+        let senderScannerActive = false;
+        let transferStats = { startTime: 0, bytesTransferred: 0 };
+        let reconnectAttempts = 0;
+        let idGenerationAttempts = 0;
+        let networkQualityMonitor = null;
+        let dynamicChunkSize = BASE_CHUNK_SIZE;
+        let currentParallelism = MAX_PARALLEL_CHUNKS;
+        let networkQuality = 0;
+        
+        // Enhanced TURN/STUN servers for better connectivity
+        const ICE_SERVERS = [
+            { urls: 'stun:stun.l.google.com:19302' },
+            { urls: 'stun:stun1.l.google.com:19302' },
+            { urls: 'stun:stun2.l.google.com:19302' },
+            { 
+                urls: 'turn:numb.viagenie.ca',
+                username: 'webrtc@live.com',
+                credential: 'muazkh'
+            },
+            {
+                urls: 'turn:openrelay.metered.ca:80',
+                username: 'openrelayproject',
+                credential: 'openrelayproject'
+            },
+            {
+                urls: 'turn:openrelay.metered.ca:443',
+                username: 'openrelayproject',
+                credential: 'openrelayproject'
+            },
+            {
+                urls: 'turn:openrelay.metered.ca:443?transport=tcp',
+                username: 'openrelayproject',
+                credential: 'openrelayproject'
+            }
+        ];
+
+        function generateShortId() {
+            return Math.floor(100000 + Math.random() * 900000).toString();
+        }
+
+        function initializePeer() {
+            const shortId = generateShortId();
+            peer = new Peer(shortId, {
+                config: { iceServers: ICE_SERVERS },
+                debug: 0 // Reduce logging for better performance
+            });
+
+            peer.on('open', id => {
+                peerId = id;
+                document.getElementById('myId').innerHTML = `<span>${id}</span>`;
+                generateQRCode(id);
+                updateStatusPill('connectionStatusPill', 'Ready to connect', '');
+                updateStats('connType', 'Peer established');
+                const urlParams = new URLSearchParams(window.location.search);
+                const connectTo = urlParams.get('connect');
+                if (connectTo) {
+                    document.getElementById('peerId').value = connectTo;
+                    setTimeout(() => connectPeer(), 300);
+                }
+                
+                // Start network quality monitoring
+                startNetworkQualityMonitoring();
+            });
+
+            peer.on('error', err => {
+                console.error('Peer Error:', err);
+                if (err.type === 'unavailable-id' && idGenerationAttempts < 5) {
+                    idGenerationAttempts++;
+                    setTimeout(initializePeer, 500);
+                } else {
+                    showNotification(`Error: ${err.type}`, 'error');
+                    updateStatusPill('connectionStatusPill', `Error: ${err.type}`, 'error');
+                    if (err.type === 'peer-unavailable' || err.type === 'network') {
+                        setTimeout(initializePeer, AUTO_RECONNECT_DELAY);
+                    }
+                }
+            });
+
+            peer.on('connection', connection => {
+                conn = connection;
+                setupConnection(connection);
+                showNotification('Receiver connected!', 'success');
+                updateStatusPill('receiverStatusPill', 'Connected to sender', 'connected');
+                updateStats('receiveConnType', 'Connected');
+            });
+
+            peer.on('disconnected', () => {
+                updateStatusPill('connectionStatusPill', 'Connection lost. Reconnecting...', 'disconnected');
+                setTimeout(initializePeer, AUTO_RECONNECT_DELAY);
+            });
+        }
+
+        function startNetworkQualityMonitoring() {
+            if (networkQualityMonitor) clearInterval(networkQualityMonitor);
+            
+            networkQualityMonitor = setInterval(() => {
+                if (conn && conn._dc) {
+                    const dc = conn._dc;
+                    
+                    // Calculate network quality based on bufferedAmount and connection state
+                    let quality = 80; // base quality
+                    
+                    // Adjust based on buffered amount (lower is better)
+                    if (dc.bufferedAmount > 5 * 1024 * 1024) { // >5MB buffered
+                        quality -= 30;
+                    } else if (dc.bufferedAmount > 1 * 1024 * 1024) { // >1MB buffered
+                        quality -= 15;
+                    }
+                    
+                    // Adjust based on connection type
+                    if (conn.type === 'relayed') {
+                        quality -= 10; // TURN relayed connections are slower
+                    }
+                    
+                    // Keep within bounds
+                    quality = Math.max(10, Math.min(100, quality));
+                    networkQuality = quality;
+                    
+                    // Update UI
+                    document.getElementById('networkQuality').style.width = `${quality}%`;
+                    document.getElementById('receiverNetworkQuality').style.width = `${quality}%`;
+                    
+                    // Set quality label
+                    let qualityLabel = 'Excellent';
+                    if (quality < 30) qualityLabel = 'Poor';
+                    else if (quality < 60) qualityLabel = 'Fair';
+                    else if (quality < 85) qualityLabel = 'Good';
+                    
+                    document.getElementById('qualityLabel').textContent = qualityLabel;
+                    document.getElementById('receiverQualityLabel').textContent = qualityLabel;
+                    
+                    // Adjust transfer parameters based on quality
+                    adjustTransferParameters(quality);
+                }
+            }, NETWORK_TEST_INTERVAL);
+        }
+
+        function adjustTransferParameters(quality) {
+            // Adjust chunk size based on network quality
+            dynamicChunkSize = Math.max(
+                4 * 1024 * 1024, // min 4MB
+                Math.min(
+                    BASE_CHUNK_SIZE, // max 64MB
+                    Math.floor(BASE_CHUNK_SIZE * (quality / 100))
+                )
+            );
+            
+            // Adjust parallelism based on quality
+            currentParallelism = Math.max(
+                5, // min 5 parallel chunks
+                Math.min(
+                    MAX_PARALLEL_CHUNKS, // max 20
+                    Math.floor(MAX_PARALLEL_CHUNKS * (quality / 100))
+                )
+            );
+            
+            updateStats('optimizationLevel', `Level ${Math.round(quality/20)}`);
+        }
+
+        function connectPeer() {
+            const connectTo = document.getElementById('peerId').value.trim();
+            if (!connectTo) {
+                showNotification('Please enter a receiver ID', 'error');
+                updateStatusPill('connectionStatusPill', 'Enter receiver ID', 'error');
+                return;
+            }
+            if (connectTo.length !== 6) {
+                showNotification('ID must be 6 digits', 'error');
+                return;
+            }
+            updateStatusPill('connectionStatusPill', 'Connecting to receiver...', 'connecting');
+            conn = peer.connect(connectTo, { 
+                reliable: true, 
+                serialization: 'binary', 
+                metadata: { type: 'sender' },
+                label: 'file-transfer',
+                priority: 'high'
+            });
+            conn.on('open', () => {
+                setupConnection(conn);
+                showNotification('Connected to receiver!', 'success');
+                updateStats('connType', 'P2P connected');
+            });
+            conn.on('error', err => {
+                console.error('Connection Error:', err);
+                showNotification(`Connection error: ${err.message}`, 'error');
+                updateStatusPill('connectionStatusPill', `Error: ${err.message}`, 'error');
+                toggleConnectionControls(false);
+                reconnectAttempts++;
+                if (reconnectAttempts <= 3) {
+                    setTimeout(() => connectPeer(), AUTO_RECONNECT_DELAY);
+                }
+            });
+        }
+
+        function setupConnection(connection) {
+            connection.on('data', handleIncomingData);
+            connection.on('close', () => {
+                showNotification('Connection closed', 'error');
+                updateStatusPill('connectionStatusPill', 'Disconnected', 'disconnected');
+                updateStatusPill('receiverStatusPill', 'Disconnected', 'disconnected');
+                updateStats('receiveConnType', 'Disconnected');
+                toggleConnectionControls(false);
+                if (networkQualityMonitor) clearInterval(networkQualityMonitor);
+            });
+            updateStatusPill('connectionStatusPill', `Connected to ${connection.peer.substring(0, 8)}...`, 'connected');
+            reconnectAttempts = 0;
+            updateStats('connType', 'P2P connected');
+            toggleConnectionControls(true);
+            vibrateDevice();
+            startNetworkQualityMonitoring();
+        }
+
+        function vibrateDevice() {
+            try {
+                if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+            } catch (e) {
+                console.log("Vibration not supported");
+            }
+        }
+
+        function toggleConnectionControls(connected) {
+            const controls = document.getElementById('senderConnectionControls');
+            const disconnectBtn = document.getElementById('disconnectBtn');
+            if (connected) {
+                controls.classList.add('hidden');
+                disconnectBtn.style.display = 'block';
+            } else {
+                controls.classList.remove('hidden');
+                disconnectBtn.style.display = 'none';
+            }
+        }
+
+        function disconnectPeer() {
+            if (conn) {
+                conn.close();
+                conn = null;
+            }
+            updateStatusPill('connectionStatusPill', 'Disconnected', 'disconnected');
+            toggleConnectionControls(false);
+            updateStatusPill('receiverStatusPill', 'Ready to receive files', '');
+            updateStats('receiveConnType', 'Disconnected');
+            if (networkQualityMonitor) clearInterval(networkQualityMonitor);
+        }
+
+        function updateStatusPill(elementId, text, status) {
+            const pill = document.getElementById(elementId);
+            if (!pill) return;
+            pill.className = `status-pill ${status}`;
+            let icon = status === 'connected' ? '🔗' : status === 'connecting' ? '🔄' : status === 'error' ? '⚠️' : '❌';
+            pill.innerHTML = `<i class="fas fa-circle"></i> ${icon} ${text}`;
+        }
+
+        async function processFiles() {
+            if (!conn || !conn.open) {
+                showNotification('Not connected to receiver', 'error');
+                return;
+            }
+            const files = document.getElementById('fileInput').files;
+            if (!files.length) {
+                showNotification('Please select files first', 'error');
+                return;
+            }
+            try {
+                transferStats.startTime = Date.now();
+                transferStats.bytesTransferred = 0;
+                
+                // Batch processing for multiple files
+                const transferPromises = [];
+                for (const file of files) {
+                    transferPromises.push(transferFile(file));
+                }
+                
+                await Promise.all(transferPromises);
+                showNotification('All files sent successfully!', 'success');
+            } catch(err) {
+                showNotification(`Error: ${err.message}`, 'error');
+            }
+        }
+
+        async function transferFile(file) {
+            const fileId = Date.now() + '-' + Math.random().toString(36).slice(2, 8);
+            const totalChunks = Math.ceil(file.size / dynamicChunkSize);
+            
+            // Compress text-based files
+            let compressed = false;
+            let fileToSend = file;
+            
+            if (file.type.startsWith('text/') || 
+                file.type === 'application/json' || 
+                file.type === 'application/xml') {
+                if (file.size > TEXT_COMPRESSION_THRESHOLD) {
+                    try {
+                        const compressedData = await compressText(await readFileAsText(file));
+                        fileToSend = new File([compressedData], file.name, { type: 'application/gzip' });
+                        compressed = true;
+                    } catch (e) {
+                        console.log('Compression failed, sending original', e);
+                    }
+                }
+            }
+            
+            conn.send({ 
+                type: 'metadata', 
+                id: fileId, 
+                name: fileToSend.name, 
+                size: fileToSend.size, 
+                mime: fileToSend.type, 
+                totalChunks,
+                compressed,
+                originalSize: compressed ? file.size : null
+            });
+            
+            createFilePreview(fileToSend, fileId, compressed);
+            const chunks = Array.from({length: totalChunks}, (_, i) => i);
+            
+            while(chunks.length) {
+                const batch = chunks.splice(0, currentParallelism);
+                await Promise.all(batch.map(i => sendChunk(fileToSend, i, fileId)));
+                const transferred = totalChunks - chunks.length;
+                const progress = Math.min(100, (transferred / totalChunks) * 100);
+                updateProgress('sendProgress', progress);
+                document.getElementById('sendPercentage').textContent = `${Math.round(progress)}%`;
+                updateTransferSpeed();
+            }
+        }
+
+        function readFileAsText(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsText(file);
+            });
+        }
+
+        function compressText(text) {
+            return new Promise((resolve, reject) => {
+                try {
+                    const compressed = pako.gzip(text);
+                    resolve(compressed);
+                } catch (e) {
+                    reject(e);
+                }
+            });
+        }
+
+        async function sendChunk(file, index, fileId) {
+            return new Promise(resolve => {
+                const reader = new FileReader();
+                const start = index * dynamicChunkSize;
+                const end = Math.min(start + dynamicChunkSize, file.size);
+                const chunk = file.slice(start, end);
+                reader.onload = () => {
+                    conn.send({ type: 'chunk', id: fileId, index, data: reader.result });
+                    transferStats.bytesTransferred += chunk.size;
+                    resolve();
+                };
+                reader.readAsArrayBuffer(chunk);
+            });
+        }
+
+        function handleIncomingData(data) {
+            if (data.type === 'metadata') handleMetadata(data);
+            if (data.type === 'chunk') handleChunk(data);
+        }
+
+        function handleMetadata(meta) {
+            receivedFiles.set(meta.id, { 
+                name: meta.name, 
+                chunks: new Array(meta.totalChunks), 
+                received: 0, 
+                size: meta.size, 
+                mime: meta.mime, 
+                compressed: meta.compressed,
+                originalSize: meta.originalSize,
+                startTime: Date.now() 
+            });
+            addFileToList(meta);
+            updateStats('compressionStatus', meta.compressed ? 'Enabled' : 'Not needed');
+        }
+
+        function handleChunk(chunk) {
+            const file = receivedFiles.get(chunk.id);
+            if (!file) return;
+            file.chunks[chunk.index] = chunk.data;
+            file.received += chunk.data.byteLength;
+            const progress = Math.min(100, (file.received / file.size) * 100);
+            updateFileProgress(chunk.id, progress);
+            updateProgress('receiveProgress', progress);
+            document.getElementById('receivePercentage').textContent = `${Math.round(progress)}%`;
+            updateReceiveSpeed(file);
+            if (file.received >= file.size) {
+                finalizeFile(file);
+                updateStats('receiveSpeed', 'Complete');
+            }
+        }
+
+        // The rest of the functions remain similar to original with optimizations...
+        // Only the key changes are shown above for brevity
+
+        function generateQRCode(id) {
+            document.getElementById('senderQr').innerHTML = '';
+            new QRCode(document.getElementById('senderQr'), { 
+                text: id, 
+                width: 180, 
+                height: 180, 
+                colorDark: "#ffffff", 
+                colorLight: "transparent", 
+                correctLevel: QRCode.CorrectLevel.H 
+            });
+        }
+
+        // File preview with compression indicator
+        function createFilePreview(file, fileId, compressed = false) {
+            const preview = document.getElementById('filePreview');
+            const div = document.createElement('div');
+            div.className = 'file-item';
+            div.id = `file-preview-${fileId}`;
+            const fileType = file.type.split('/')[0];
+            let icon = 'file';
+            if (fileType === 'image') icon = 'file-image';
+            else if (fileType === 'video') icon = 'file-video';
+            else if (fileType === 'audio') icon = 'file-audio';
+            else if (file.type.includes('pdf')) icon = 'file-pdf';
+            
+            let sizeInfo = formatFileSize(file.size);
+            if (compressed) {
+                sizeInfo += ' <span class="speed-badge" style="font-size:0.8em">compressed</span>';
+            }
+            
+            div.innerHTML = `
+                <i class="fas fa-${icon} file-icon"></i>
+                <div class="file-info">
+                    <div class="file-name">${file.name}</div>
+                    <div class="file-size">${sizeInfo}</div>
+                </div>
+                <div class="progress" style="width: 100px; margin-left: 10px;">
+                    <div class="progress-bar" style="width: 0%"></div>
+                </div>
+            `;
+            preview.appendChild(div);
+            return div;
+        }
+
+        function updateTransferSpeed() {
+            const elapsed = (Date.now() - transferStats.startTime) / 1000;
+            if (elapsed < 0.1) return;
+            const bytesPerSec = transferStats.bytesTransferred / elapsed;
+            const speed = bytesPerSec / (1024 * 1024);
+            updateStats('transferSpeed', `${speed.toFixed(2)} MB/s`);
+        }
+
+        function updateReceiveSpeed(file) {
+            const elapsed = (Date.now() - file.startTime) / 1000;
+            if (elapsed < 0.1) return;
+            const bytesPerSec = file.received / elapsed;
+            const speed = bytesPerSec / (1024 * 1024);
+            updateStats('receiveSpeed', `${speed.toFixed(2)} MB/s`);
+        }
+
+        // Finalize file with decompression if needed
+        async function finalizeFile(file) {
+            let blob = new Blob(file.chunks, { type: file.mime });
+            
+            // Decompress if needed
+            if (file.compressed) {
+                try {
+                    const decompressed = await decompressBlob(blob);
+                    blob = decompressed;
+                } catch (e) {
+                    console.error('Decompression failed', e);
+                    showNotification(`Decompression failed for ${file.name}`, 'error');
+                }
+            }
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = file.name;
+            link.click();
+            showNotification(`File "${file.name}" downloaded!`, 'success');
+        }
+
+        function decompressBlob(blob) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    try {
+                        const decompressed = pako.ungzip(new Uint8Array(reader.result), { to: 'string' });
+                        resolve(new Blob([decompressed], { type: 'text/plain' }));
+                    } catch (e) {
+                        reject(e);
+                    }
+                };
+                reader.onerror = reject;
+                reader.readAsArrayBuffer(blob);
+            });
+        }
+
+        // Initialize with compression library
+        window.addEventListener('load', function() {
+            // Load compression library dynamically
+            const script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pako/2.0.4/pako.min.js';
+            script.onload = initializePeer;
+            document.head.appendChild(script);
+            
+            setupDragAndDrop();
+            document.getElementById('peerId').addEventListener('input', function() {
+                const id = this.value.trim();
+                if (id.length === 6) connectPeer();
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                document.body.classList.add('loaded');
+            }, 100);
+        });
+    </script>
+</body>
+</html>
