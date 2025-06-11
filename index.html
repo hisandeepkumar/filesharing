@@ -63,7 +63,7 @@
         @keyframes slideInBottom { from { opacity: 0; transform: translateY(100%); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* Glowing Border ke Styles */
+        /* Glowing Border Styles */
         .glow-border {
             position: relative;
             width: 100%;
@@ -108,12 +108,27 @@
             100% { background-position: 0% 50%; }
         }
 
+        /* Panel and Panel Inner Styles */
+        .panel {
+            background: transparent; /* Panel ka background transparent rakha taki glowing border dikhe */
+            padding: 10px; /* Border ke liye thodi space */
+            border-radius: 40px;
+        }
+
+        .panel-inner {
+            background-color: #000; /* Solid black background content ke liye */
+            border-radius: 30px; /* Thoda chhota radius border ke andar fit hone ke liye */
+            padding: 20px;
+            position: relative;
+            z-index: 2; /* Content border ke upar rahe */
+        }
+
+        /* Other styles remain the same */
         .header { text-align: center; margin: 20px 0 40px; }
         .logo { display: inline-flex; align-items: center; gap: 15px; margin-bottom: 20px; background: var(--panel-bg); padding: 15px 30px; border-radius: 20px; border: 1px solid var(--border); box-shadow: var(--glow); }
         h1 { font-size: 2.8rem; font-weight: 700; }
         .subtitle { font-size: 1.2rem; max-width: 600px; margin: 0 auto 30px; line-height: 1.6; }
         .container { max-width: 1300px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
-        .panel { background: var(--panel-bg); border-radius: 40px; padding: 30px; border: 1px solid var(--border); box-shadow: var(--glow); }
         .panel-header { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid var(--border); }
         .panel-header i { font-size: 1.8rem; }
         h2 { font-size: 1.8rem; font-weight: 600; }
@@ -182,55 +197,59 @@
     
     <div class="container">
         <div class="panel glow-border slide-from-left">
-            <div class="panel-header animate-fade" style="--delay: 0.5s;">
-                <i class="fas fa-cloud-upload-alt"></i>
-                <h2>Send Files</h2>
-            </div>
-            <div class="id-box animate-fade" style="--delay: 0.6s;">
-                <i class="fas fa-key"></i>
-                <strong id="myId"><span class="id-generating"><span class="spinner"></span> Generating your unique ID...</span></strong>
-                <button class="btn btn-outline slide-from-left" style="animation-delay: 0.7s;" onclick="copyID()"><i class="fas fa-copy"></i> Copy</button>
-            </div>
-            <div id="connectionStatusPill" class="status-pill disconnected animate-fade" style="--delay: 0.8s;"><i class="fas fa-circle"></i> ❌ Not connected</div>
-            <div class="connection-controls animate-fade" id="senderConnectionControls" style="--delay: 0.9s;">
-                <div class="action-buttons">
-                    <button class="btn btn-outline slide-from-left" style="animation-delay: 1.0s;" onclick="startSenderQRScanner()"><i class="fas fa-qrcode"></i> Scan QR</button>
-                    <button class="btn btn-outline slide-from-right" style="animation-delay: 1.1s;" onclick="copyLink()"><i class="fas fa-link"></i> Copy Link</button>
+            <div class="panel-inner">
+                <div class="panel-header animate-fade" style="--delay: 0.5s;">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <h2>Send Files</h2>
                 </div>
-                <div class="qr-container animate-fade" id="senderQr" style="--delay: 1.2s;"></div>
-                <div id="senderScanner"><div class="scanner-frame"></div></div>
-                <input type="text" id="peerId" placeholder="📥 Enter Receiver ID (6-digit)" maxlength="6" class="animate-fade" style="--delay: 1.3s;">
-                <button class="btn btn-large slide-from-bottom" style="animation-delay: 1.4s;" onclick="connectPeer()"><i class="fas fa-plug"></i> Connect to Receiver</button>
-            </div>
-            <button id="disconnectBtn" class="btn btn-large disconnect-btn" onclick="disconnectPeer()" style="display: none;"><i class="fas fa-unlink"></i> Disconnect</button>
-            <div class="drop-zone animate-fade" id="dropZone" style="--delay: 1.5s;"><i class="fas fa-cloud-upload-alt"></i><p>Drag & Drop files here</p><p class="hint">or click to select files</p></div>
-            <input type="file" id="fileInput" multiple hidden>
-            <div id="filePreview" style="margin: 20px 0;"></div>
-            <button class="btn btn-large slide-from-bottom" style="animation-delay: 1.6s;" onclick="processFiles()"><i class="fas fa-paper-plane"></i> Send Files</button>
-            <div class="progress-container animate-fade" style="--delay: 1.7s;">
-                <div class="progress-label"><span>Sending progress</span><span id="sendPercentage">0%</span></div>
-                <div class="progress"><div class="progress-bar" id="sendProgress" style="width: 0%"></div></div>
-            </div>
-            <div class="connection-stats animate-fade" style="--delay: 1.8s;">
-                <div class="stats-item"><i class="fas fa-microchip"></i> Connection: <span id="connType" class="stats-value">Establishing...</span></div>
-                <div class="stats-item"><i class="fas fa-bolt"></i> Speed: <span id="transferSpeed" class="stats-value">0 MB/s</span></div>
+                <div class="id-box animate-fade" style="--delay: 0.6s;">
+                    <i class="fas fa-key"></i>
+                    <strong id="myId"><span class="id-generating"><span class="spinner"></span> Generating your unique ID...</span></strong>
+                    <button class="btn btn-outline slide-from-left" style="animation-delay: 0.7s;" onclick="copyID()"><i class="fas fa-copy"></i> Copy</button>
+                </div>
+                <div id="connectionStatusPill" class="status-pill disconnected animate-fade" style="--delay: 0.8s;"><i class="fas fa-circle"></i> ❌ Not connected</div>
+                <div class="connection-controls animate-fade" id="senderConnectionControls" style="--delay: 0.9s;">
+                    <div class="action-buttons">
+                        <button class="btn btn-outline slide-from-left" style="animation-delay: 1.0s;" onclick="startSenderQRScanner()"><i class="fas fa-qrcode"></i> Scan QR</button>
+                        <button class="btn btn-outline slide-from-right" style="animation-delay: 1.1s;" onclick="copyLink()"><i class="fas fa-link"></i> Copy Link</button>
+                    </div>
+                    <div class="qr-container animate-fade" id="senderQr" style="--delay: 1.2s;"></div>
+                    <div id="senderScanner"><div class="scanner-frame"></div></div>
+                    <input type="text" id="peerId" placeholder="📥 Enter Receiver ID (6-digit)" maxlength="6" class="animate-fade" style="--delay: 1.3s;">
+                    <button class="btn btn-large slide-from-bottom" style="animation-delay: 1.4s;" onclick="connectPeer()"><i class="fas fa-plug"></i> Connect to Receiver</button>
+                </div>
+                <button id="disconnectBtn" class="btn btn-large disconnect-btn" onclick="disconnectPeer()" style="display: none;"><i class="fas fa-unlink"></i> Disconnect</button>
+                <div class="drop-zone animate-fade" id="dropZone" style="--delay: 1.5s;"><i class="fas fa-cloud-upload-alt"></i><p>Drag & Drop files here</p><p class="hint">or click to select files</p></div>
+                <input type="file" id="fileInput" multiple hidden>
+                <div id="filePreview" style="margin: 20px 0;"></div>
+                <button class="btn btn-large slide-from-bottom" style="animation-delay: 1.6s;" onclick="processFiles()"><i class="fas fa-paper-plane"></i> Send Files</button>
+                <div class="progress-container animate-fade" style="--delay: 1.7s;">
+                    <div class="progress-label"><span>Sending progress</span><span id="sendPercentage">0%</span></div>
+                    <div class="progress"><div class="progress-bar" id="sendProgress" style="width: 0%"></div></div>
+                </div>
+                <div class="connection-stats animate-fade" style="--delay: 1.8s;">
+                    <div class="stats-item"><i class="fas fa-microchip"></i> Connection: <span id="connType" class="stats-value">Establishing...</span></div>
+                    <div class="stats-item"><i class="fas fa-bolt"></i> Speed: <span id="transferSpeed" class="stats-value">0 MB/s</span></div>
+                </div>
             </div>
         </div>
 
         <div class="panel glow-border slide-from-right receiver-simplified">
-            <div class="panel-header animate-fade" style="--delay: 0.5s;">
-                <i class="fas fa-cloud-download-alt"></i>
-                <h2>Receive Files</h2>
-            </div>
-            <div id="receiverStatusPill" class="status-pill animate-fade" style="--delay: 0.6s;"><i class="fas fa-circle"></i> 🟢 Ready to receive files</div>
-            <div id="fileList" style="margin-top: 30px;"></div>
-            <div class="progress-container animate-fade" style="--delay: 0.7s;">
-                <div class="progress-label"><span>Receiving progress</span><span id="receivePercentage">0%</span></div>
-                <div class="progress"><div class="progress-bar" id="receiveProgress" style="width: 0%"></div></div>
-            </div>
-            <div class="connection-stats animate-fade" style="--delay: 0.8s;">
-                <div class="stats-item"><i class="fas fa-wifi"></i> Status: <span id="receiveConnType" class="stats-value">Waiting...</span></div>
-                <div class="stats-item"><i class="fas fa-tachometer-alt"></i> Speed: <span id="receiveSpeed" class="stats-value">0 MB/s</span></div>
+            <div class="panel-inner">
+                <div class="panel-header animate-fade" style="--delay: 0.5s;">
+                    <i class="fas fa-cloud-download-alt"></i>
+                    <h2>Receive Files</h2>
+                </div>
+                <div id="receiverStatusPill" class="status-pill animate-fade" style="--delay: 0.6s;"><i class="fas fa-circle"></i> 🟢 Ready to receive files</div>
+                <div id="fileList" style="margin-top: 30px;"></div>
+                <div class="progress-container animate-fade" style="--delay: 0.7s;">
+                    <div class="progress-label"><span>Receiving progress</span><span id="receivePercentage">0%</span></div>
+                    <div class="progress"><div class="progress-bar" id="receiveProgress" style="width: 0%"></div></div>
+                </div>
+                <div class="connection-stats animate-fade" style="--delay: 0.8s;">
+                    <div class="stats-item"><i class="fas fa-wifi"></i> Status: <span id="receiveConnType" class="stats-value">Waiting...</span></div>
+                    <div class="stats-item"><i class="fas fa-tachometer-alt"></i> Speed: <span id="receiveSpeed" class="stats-value">0 MB/s</span></div>
+                </div>
             </div>
         </div>
     </div>
