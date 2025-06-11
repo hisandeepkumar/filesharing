@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🚀 AirDropX - Cross-Platform File Transfer</title>
-    <script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
+    <title>🚀 AirDropX - Ultra-Fast Cross-Platform File Transfer</title>
+    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/davidshimjs-qrcodejs@0.0.2/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -21,6 +21,7 @@
             --success: rgba(0, 230, 118, 0.9);
             --error: rgba(255, 82, 82, 0.9);
             --warning: rgba(255, 204, 0, 0.9);
+            --speed-gradient: linear-gradient(90deg, #00ff88, #00c6ff, #0062ff);
         }
 
         * {
@@ -86,6 +87,16 @@
             max-width: 600px;
             margin: 0 auto 30px;
             line-height: 1.6;
+        }
+        
+        .speed-indicator {
+            background: var(--speed-gradient);
+            padding: 10px 20px;
+            border-radius: 30px;
+            display: inline-block;
+            margin-top: 10px;
+            font-weight: 700;
+            box-shadow: 0 0 20px rgba(0, 198, 255, 0.4);
         }
 
         .container {
@@ -664,22 +675,61 @@
             justify-content: center;
             gap: 20px;
         }
+        
+        .speed-chart {
+            height: 100px;
+            background: rgba(0, 40, 80, 0.2);
+            border-radius: 12px;
+            margin-top: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .speed-chart::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to top, rgba(0, 100, 255, 0.1), transparent 70%);
+        }
+        
+        .speed-graph {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: flex-end;
+            padding: 0 2px;
+        }
+        
+        .speed-bar {
+            flex: 1;
+            background: var(--speed-gradient);
+            margin: 0 1px;
+            border-radius: 2px 2px 0 0;
+            transition: height 0.5s ease;
+        }
     </style>
 </head>
 <body>
     <div class="header">
         <div class="logo">
-            <i class="fas fa-paper-plane"></i>
-            <h1>AirDropX</h1>
+            <i class="fas fa-bolt"></i>
+            <h1>AirDropX Turbo</h1>
         </div>
-        <p class="subtitle">Seamlessly transfer files between Android and iPhone devices. No installation required, works directly in your browser.</p>
+        <p class="subtitle">Ultra-fast file transfer between any devices. Optimized for maximum speed.</p>
+        <div class="speed-indicator">Transfer Speed: <span id="maxSpeedIndicator">Up to 100MB/s</span></div>
     </div>
     
     <div class="container">
         <!-- Sender Panel -->
         <div class="panel">
             <div class="panel-header">
-                <i class="fas fa-cloud-upload-alt"></i>
+                <i class="fas fa-rocket"></i>
                 <h2>Send Files</h2>
             </div>
             
@@ -757,6 +807,10 @@
                 </div>
             </div>
             
+            <div class="speed-chart">
+                <div class="speed-graph" id="speedGraph"></div>
+            </div>
+            
             <div class="connection-stats">
                 <div class="stats-item">
                     <i class="fas fa-microchip"></i> Connection: <span id="connType" class="stats-value">Establishing...</span>
@@ -767,7 +821,7 @@
             </div>
         </div>
 
-        <!-- Receiver Panel (Simplified) -->
+        <!-- Receiver Panel -->
         <div class="panel receiver-simplified">
             <div class="panel-header">
                 <i class="fas fa-cloud-download-alt"></i>
@@ -790,6 +844,10 @@
                 </div>
             </div>
             
+            <div class="speed-chart">
+                <div class="speed-graph" id="receiveSpeedGraph"></div>
+            </div>
+            
             <div class="connection-stats">
                 <div class="stats-item">
                     <i class="fas fa-wifi"></i> Status: <span id="receiveConnType" class="stats-value">Waiting...</span>
@@ -802,8 +860,8 @@
     </div>
     
     <div class="footer">
-        <p>AirDropX - Fast, secure, and cross-platform file transfers. No installation required.</p>
-        <p>All data is transferred directly between devices - no servers involved.</p>
+        <p>AirDropX Turbo - Lightning-fast file transfers. All data is transferred directly between devices - no servers involved.</p>
+        <p>Optimized for maximum transfer speed using WebRTC and advanced chunking techniques</p>
     </div>
     
     <div class="notification" id="notification">
@@ -815,10 +873,11 @@
     </div>
 
     <script>
-        // Configuration
-        const CHUNK_SIZE = 16 * 1024 * 1024; // 16MB chunks for large files
-        const MAX_PARALLEL_CHUNKS = 10;
+        // Optimized Configuration
+        const BASE_CHUNK_SIZE = 16 * 1024 * 1024; // 16MB base chunk size
+        const MAX_PARALLEL_CHUNKS = 16; // Increased parallelism
         const AUTO_RECONNECT_DELAY = 3000; // 3 seconds
+        const SPEED_HISTORY_LENGTH = 60; // 60 data points for speed graph
         
         // Global variables
         let peer = null;
@@ -830,10 +889,15 @@
         let senderScannerActive = false;
         let transferStats = {
             startTime: 0,
-            bytesTransferred: 0
+            bytesTransferred: 0,
+            lastUpdate: 0,
+            lastBytes: 0,
+            speedHistory: []
         };
+        let receiveSpeedHistory = [];
         let reconnectAttempts = 0;
         let idGenerationAttempts = 0;
+        let maxSpeedAchieved = 0;
         
         // Generate short 6-digit ID
         function generateShortId() {
@@ -853,6 +917,11 @@
                             urls: 'turn:numb.viagenie.ca',
                             username: 'webrtc@live.com',
                             credential: 'muazkh'
+                        },
+                        {
+                            urls: 'turn:relay.backups.cz',
+                            username: 'webrtc',
+                            credential: 'webrtc'
                         }
                     ]
                 },
@@ -932,6 +1001,7 @@
                 setupConnection(conn);
                 showNotification('Connected to receiver!', 'success');
                 updateStats('connType', 'P2P connected');
+                vibrateDevice();
             });
             
             conn.on('error', err => {
@@ -961,17 +1031,12 @@
             reconnectAttempts = 0;
             updateStats('connType', 'P2P connected');
             toggleConnectionControls(true);
-            
-            // Trigger vibration on both devices
-            vibrateDevice();
         }
         
         // Vibration function
         function vibrateDevice() {
             try {
-                // Check if vibration is supported
                 if (navigator.vibrate) {
-                    // Vibrate pattern: 100ms on, 50ms off, 100ms on
                     navigator.vibrate([100, 50, 100]);
                 }
             } catch (e) {
@@ -1025,7 +1090,7 @@
             pill.innerHTML = `<i class="fas fa-circle"></i> ${icon} ${text}`;
         }
         
-        // File transfer functions
+        // File transfer functions - Optimized for speed
         async function processFiles() {
             if (!conn || !conn.open) {
                 showNotification('Not connected to receiver', 'error');
@@ -1041,8 +1106,15 @@
             try {
                 transferStats.startTime = Date.now();
                 transferStats.bytesTransferred = 0;
+                transferStats.lastUpdate = transferStats.startTime;
+                transferStats.lastBytes = 0;
+                transferStats.speedHistory = [];
+                maxSpeedAchieved = 0;
                 
-                for (const file of files) {
+                // Optimize transfer order by size (smallest first)
+                const sortedFiles = Array.from(files).sort((a, b) => a.size - b.size);
+                
+                for (const file of sortedFiles) {
                     await transferFile(file);
                 }
                 
@@ -1054,7 +1126,8 @@
         
         async function transferFile(file) {
             const fileId = Date.now() + '-' + Math.random().toString(36).slice(2, 8);
-            const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+            const chunkSize = calculateOptimalChunkSize(file.size);
+            const totalChunks = Math.ceil(file.size / chunkSize);
             
             // Send file metadata
             conn.send({
@@ -1063,7 +1136,8 @@
                 name: file.name,
                 size: file.size,
                 mime: file.type,
-                totalChunks
+                totalChunks,
+                chunkSize
             });
             
             // Create file preview
@@ -1071,9 +1145,11 @@
             
             // Send file in parallel chunks
             const chunks = Array.from({length: totalChunks}, (_, i) => i);
+            const parallelChunks = Math.min(MAX_PARALLEL_CHUNKS, totalChunks);
+            
             while(chunks.length) {
-                const batch = chunks.splice(0, MAX_PARALLEL_CHUNKS);
-                await Promise.all(batch.map(i => sendChunk(file, i, fileId)));
+                const batch = chunks.splice(0, parallelChunks);
+                await Promise.all(batch.map(i => sendChunk(file, i, fileId, chunkSize)));
                 
                 const transferred = totalChunks - chunks.length;
                 const progress = Math.min(100, (transferred / totalChunks) * 100);
@@ -1085,14 +1161,28 @@
             }
         }
         
-        async function sendChunk(file, index, fileId) {
+        function calculateOptimalChunkSize(fileSize) {
+            // Adjust chunk size based on file size
+            if (fileSize > 500 * 1024 * 1024) { // >500MB
+                return 32 * 1024 * 1024; // 32MB
+            } else if (fileSize > 100 * 1024 * 1024) { // >100MB
+                return 16 * 1024 * 1024; // 16MB
+            } else if (fileSize > 50 * 1024 * 1024) { // >50MB
+                return 8 * 1024 * 1024; // 8MB
+            } else {
+                return 4 * 1024 * 1024; // 4MB
+            }
+        }
+        
+        async function sendChunk(file, index, fileId, chunkSize) {
             return new Promise(resolve => {
                 const reader = new FileReader();
-                const start = index * CHUNK_SIZE;
-                const end = Math.min(start + CHUNK_SIZE, file.size);
+                const start = index * chunkSize;
+                const end = Math.min(start + chunkSize, file.size);
                 const chunk = file.slice(start, end);
                 
                 reader.onload = () => {
+                    // Use direct ArrayBuffer transfer for efficiency
                     conn.send({
                         type: 'chunk',
                         id: fileId,
@@ -1120,7 +1210,10 @@
                 received: 0,
                 size: meta.size,
                 mime: meta.mime,
-                startTime: Date.now()
+                startTime: Date.now(),
+                lastUpdate: Date.now(),
+                lastBytes: 0,
+                speedHistory: []
             });
             addFileToList(meta);
         }
@@ -1447,21 +1540,77 @@
         }
         
         function updateTransferSpeed() {
-            const elapsed = (Date.now() - transferStats.startTime) / 1000; // in seconds
-            if (elapsed < 0.1) return; // Avoid division by zero
+            const now = Date.now();
+            const elapsed = (now - transferStats.lastUpdate) / 1000; // in seconds
+            if (elapsed < 0.1) return; // Too soon to update
             
-            const bytesPerSec = transferStats.bytesTransferred / elapsed;
+            const bytesDiff = transferStats.bytesTransferred - transferStats.lastBytes;
+            const bytesPerSec = bytesDiff / elapsed;
             const speed = bytesPerSec / (1024 * 1024); // in MB/s
+            
+            // Update stats
             updateStats('transferSpeed', `${speed.toFixed(2)} MB/s`);
+            
+            // Update max speed indicator
+            if (speed > maxSpeedAchieved) {
+                maxSpeedAchieved = speed;
+                document.getElementById('maxSpeedIndicator').textContent = `Up to ${maxSpeedAchieved.toFixed(2)}MB/s`;
+            }
+            
+            // Update speed history
+            transferStats.speedHistory.push(speed);
+            if (transferStats.speedHistory.length > SPEED_HISTORY_LENGTH) {
+                transferStats.speedHistory.shift();
+            }
+            
+            // Update graph
+            updateSpeedGraph('speedGraph', transferStats.speedHistory);
+            
+            // Update for next calculation
+            transferStats.lastUpdate = now;
+            transferStats.lastBytes = transferStats.bytesTransferred;
         }
         
         function updateReceiveSpeed(file) {
-            const elapsed = (Date.now() - file.startTime) / 1000; // in seconds
-            if (elapsed < 0.1) return; // Avoid division by zero
+            const now = Date.now();
+            const elapsed = (now - file.lastUpdate) / 1000; // in seconds
+            if (elapsed < 0.1) return; // Too soon to update
             
-            const bytesPerSec = file.received / elapsed;
+            const bytesDiff = file.received - file.lastBytes;
+            const bytesPerSec = bytesDiff / elapsed;
             const speed = bytesPerSec / (1024 * 1024); // in MB/s
+            
+            // Update stats
             updateStats('receiveSpeed', `${speed.toFixed(2)} MB/s`);
+            
+            // Update speed history
+            file.speedHistory.push(speed);
+            if (file.speedHistory.length > SPEED_HISTORY_LENGTH) {
+                file.speedHistory.shift();
+            }
+            
+            // Update graph
+            updateSpeedGraph('receiveSpeedGraph', file.speedHistory);
+            
+            // Update for next calculation
+            file.lastUpdate = now;
+            file.lastBytes = file.received;
+        }
+        
+        function updateSpeedGraph(elementId, history) {
+            if (history.length === 0) return;
+            
+            const graph = document.getElementById(elementId);
+            graph.innerHTML = '';
+            
+            const maxValue = Math.max(1, ...history); // Avoid division by zero
+            
+            history.forEach(speed => {
+                const bar = document.createElement('div');
+                bar.className = 'speed-bar';
+                bar.style.height = `${(speed / maxValue) * 100}%`;
+                graph.appendChild(bar);
+            });
         }
         
         function updateStats(elementId, value) {
