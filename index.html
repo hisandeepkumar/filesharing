@@ -3,32 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🚀 AirDropX - Optimized File Transfer</title>
+    <title>🚀 AirDropX - Cross-Platform File Transfer</title>
     <script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/davidshimjs-qrcodejs@0.0.2/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-   <style>
+    <style>
         :root {
-            --background: #121212;
-            --panel-bg: #1e1e1e;
-            --text: #ffffff;
-            --button-bg: #ffffff;
-            --button-text: #000000;
-            --glow-color: #ffffff;
-            --glow: 0 0 10px var(--glow-color);
-            --border: #ffffff;
-            --primary: #ffffff;
-            --success: #00ff00;
-            --error: #ff0000;
-            --warning: #ffff00;
+            --primary: rgba(0, 255, 136, 0.8);
+            --primary-dark: rgba(0, 200, 100, 0.9);
+            --background: linear-gradient(135deg, #0a1929 0%, #001e3c 100%);
+            --glass: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.18);
+            --glass-hover: rgba(255, 255, 255, 0.15);
+            --text: rgba(255, 255, 255, 0.92);
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --success: rgba(0, 230, 118, 0.9);
+            --error: rgba(255, 82, 82, 0.9);
+            --warning: rgba(255, 204, 0, 0.9);
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
         body {
@@ -37,98 +36,25 @@
             min-height: 100vh;
             padding: 20px;
             overflow-x: hidden;
+            position: relative;
         }
 
-        /* Animation Initial States */
-        .fade-from-top {
-            opacity: 0;
-            transform: translateY(-50px);
-        }
-
-        .fade-from-bottom {
-            opacity: 0;
-            transform: translateY(50px);
-        }
-
-        .slide-from-left {
-            opacity: 0;
-            transform: translateX(-100%);
-        }
-
-        .slide-from-right {
-            opacity: 0;
-            transform: translateX(100%);
-        }
-
-        .slide-from-bottom {
-            opacity: 0;
-            transform: translateY(100%);
-        }
-
-        .animate-fade {
-            opacity: 0;
-        }
-
-        /* Animation Triggers */
-        body.loaded .fade-from-top {
-            animation: fadeInDown 0.5s ease-out forwards;
-        }
-
-        body.loaded .fade-from-bottom {
-            animation: fadeInUp 0.5s ease-out forwards;
-        }
-
-        body.loaded .slide-from-left {
-            animation: slideInLeft 0.5s ease-out forwards;
-        }
-
-        body.loaded .slide-from-right {
-            animation: slideInRight 0.5s ease-out forwards;
-        }
-
-        body.loaded .slide-from-bottom {
-            animation: slideInBottom 0.5s ease-out forwards;
-        }
-
-        body.loaded .animate-fade {
-            animation: fadeIn 0.3s ease-out forwards;
-            animation-delay: var(--delay);
-        }
-
-        /* Keyframes */
-        @keyframes fadeInDown {
-            from { opacity: 0; transform: translateY(-50px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(50px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes slideInLeft {
-            from { opacity: 0; transform: translateX(-100%); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        @keyframes slideInRight {
-            from { opacity: 0; transform: translateX(100%); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        @keyframes slideInBottom {
-            from { opacity: 0; transform: translateY(100%); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 30%, rgba(0, 100, 255, 0.1) 0%, transparent 40%),
+                        radial-gradient(circle at 80% 70%, rgba(0, 255, 136, 0.1) 0%, transparent 40%);
+            z-index: -1;
         }
 
         .header {
             text-align: center;
             margin: 20px 0 40px;
+            position: relative;
         }
 
         .logo {
@@ -136,20 +62,27 @@
             align-items: center;
             gap: 15px;
             margin-bottom: 20px;
-            background: var(--panel-bg);
+            background: var(--glass);
+            backdrop-filter: blur(20px);
             padding: 15px 30px;
-            border-radius: 20px;
-            border: 1px solid var(--border);
-            box-shadow: var(--glow);
+            border-radius: 50px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         }
 
         h1 {
             font-size: 2.8rem;
             font-weight: 700;
+            background: linear-gradient(to right, #00ff88, #00ddff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+            letter-spacing: -0.5px;
         }
 
         .subtitle {
             font-size: 1.2rem;
+            color: var(--text-secondary);
             max-width: 600px;
             margin: 0 auto 30px;
             line-height: 1.6;
@@ -164,11 +97,26 @@
         }
 
         .panel {
-            background: var(--panel-bg);
-            border-radius: 20px;
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
             padding: 30px;
-            border: 1px solid var(--border);
-            box-shadow: var(--glow);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .panel::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
+            z-index: -1;
         }
 
         .panel-header {
@@ -177,11 +125,14 @@
             gap: 15px;
             margin-bottom: 25px;
             padding-bottom: 15px;
-            border-bottom: 1px solid var(--border);
+            border-bottom: 1px solid var(--glass-border);
         }
 
         .panel-header i {
             font-size: 1.8rem;
+            background: linear-gradient(to right, var(--primary), #00ddff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         h2 {
@@ -190,20 +141,20 @@
         }
 
         .id-box {
-            background: var(--panel-bg);
+            background: rgba(0, 40, 80, 0.4);
             padding: 18px;
-            border-radius: 20px;
+            border-radius: 16px;
             margin: 20px 0;
             display: flex;
             align-items: center;
             gap: 12px;
             font-size: 1.1rem;
-            border: 1px solid var(--border);
-            box-shadow: var(--glow);
+            border: 1px solid var(--glass-border);
         }
 
         .id-box strong {
             font-weight: 600;
+            letter-spacing: 0.5px;
             flex-grow: 1;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -216,11 +167,11 @@
         }
 
         .btn {
-            background: var(--button-bg);
-            color: var(--button-text);
+            background: var(--primary);
+            color: #002850;
             border: none;
             padding: 14px 20px;
-            border-radius: 20px;
+            border-radius: 12px;
             cursor: pointer;
             font-weight: 600;
             transition: all 0.3s;
@@ -230,22 +181,24 @@
             gap: 10px;
             font-size: 1rem;
             flex: 1;
-            box-shadow: var(--glow);
+            box-shadow: 0 4px 15px rgba(0, 255, 136, 0.2);
         }
 
         .btn:hover {
-            box-shadow: 0 0 20px var(--glow-color);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 255, 136, 0.3);
+            background: var(--primary-dark);
         }
 
         .btn-outline {
             background: transparent;
-            border: 2px solid var(--border);
-            color: var(--text);
-            box-shadow: var(--glow);
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            box-shadow: none;
         }
 
         .btn-outline:hover {
-            box-shadow: 0 0 20px var(--glow-color);
+            background: rgba(0, 255, 136, 0.1);
         }
 
         .btn-large {
@@ -256,51 +209,39 @@
         input {
             width: 100%;
             padding: 16px;
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            background: var(--panel-bg);
-            color: var(--text);
+            border: 2px solid var(--glass-border);
+            border-radius: 12px;
+            background: rgba(0, 30, 60, 0.3);
+            color: white;
             font-size: 1rem;
             margin: 15px 0;
             transition: all 0.3s;
-            box-shadow: var(--glow);
         }
 
         input:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 20px var(--glow-color);
+            box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.2);
         }
 
-        .status-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 12px 20px;
-            border-radius: 30px;
-            font-size: 0.95rem;
-            font-weight: 500;
+        .status {
+            padding: 15px;
+            border-radius: 12px;
             margin: 15px 0;
-            width: 100%;
-            justify-content: center;
-            background: var(--panel-bg);
-            border: 1px solid var(--border);
-            box-shadow: var(--glow);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        .status-pill.connected {
-            color: var(--success);
-            border-color: var(--success);
+        .connected { 
+            background: rgba(0, 230, 118, 0.15); 
+            border: 1px solid var(--success);
         }
 
-        .status-pill.connecting {
-            color: var(--warning);
-            border-color: var(--warning);
-        }
-
-        .status-pill.disconnected, .status-pill.error {
-            color: var(--error);
-            border-color: var(--error);
+        .disconnected { 
+            background: rgba(255, 82, 82, 0.15); 
+            border: 1px solid var(--error);
         }
 
         .progress-container {
@@ -312,47 +253,69 @@
             justify-content: space-between;
             margin-bottom: 8px;
             font-size: 0.9rem;
+            color: var(--text-secondary);
         }
 
         .progress {
             height: 12px;
-            background: var(--panel-bg);
+            background: rgba(0, 61, 122, 0.4);
             border-radius: 10px;
             overflow: hidden;
-            border: 1px solid var(--border);
         }
 
         .progress-bar {
             height: 100%;
-            background: var(--primary);
+            background: linear-gradient(90deg, var(--primary), #00ddff);
             border-radius: 10px;
             transition: width 0.3s ease;
+            position: relative;
+        }
+
+        .progress-bar::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
         }
 
         .qr-container {
             margin: 20px 0;
             text-align: center;
-            background: var(--panel-bg);
+            background: rgba(255,255,255,0.05);
             padding: 20px;
-            border-radius: 20px;
-            border: 1px solid var(--border);
-            box-shadow: var(--glow);
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
         }
 
-        #qrScanner, #senderScanner {
+        #qrScanner {
             width: 100%;
             height: 300px;
-            background: var(--panel-bg);
-            border-radius: 20px;
+            background: rgba(0, 40, 80, 0.4);
+            border-radius: 16px;
             margin: 15px 0;
             overflow: hidden;
             position: relative;
-            border: 1px solid var(--border);
-            box-shadow: var(--glow);
         }
 
         #senderScanner {
             display: none;
+            width: 100%;
+            height: 300px;
+            background: rgba(0, 40, 80, 0.4);
+            border-radius: 16px;
+            margin: 15px 0;
+            overflow: hidden;
+            position: relative;
         }
 
         .scanner-frame {
@@ -365,22 +328,23 @@
             border: 3px solid var(--primary);
             border-radius: 12px;
             box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.5);
+            z-index: 10;
         }
 
         .file-item {
-            background: var(--panel-bg);
+            background: rgba(0, 40, 80, 0.4);
             padding: 18px;
-            border-radius: 20px;
+            border-radius: 16px;
             margin: 15px 0;
             display: flex;
             align-items: center;
             gap: 15px;
-            border: 1px solid var(--border);
-            box-shadow: var(--glow);
+            border: 1px solid var(--glass-border);
         }
 
         .file-icon {
             font-size: 2rem;
+            color: var(--primary);
         }
 
         .file-info {
@@ -396,6 +360,7 @@
 
         .file-size {
             font-size: 0.9rem;
+            color: var(--text-secondary);
         }
 
         .notification {
@@ -403,15 +368,17 @@
             top: 30px;
             right: 30px;
             padding: 18px 25px;
-            border-radius: 20px;
-            background: var(--panel-bg);
-            border: 1px solid var(--border);
+            border-radius: 14px;
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             display: flex;
             align-items: center;
             gap: 15px;
             transform: translateX(150%);
             transition: transform 0.4s ease;
-            box-shadow: var(--glow);
+            z-index: 1000;
         }
 
         .notification.show {
@@ -430,11 +397,21 @@
             color: var(--error);
         }
 
+        .notification-content h3 {
+            margin-bottom: 5px;
+        }
+
+        .notification-content p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
         .connection-stats {
             display: flex;
             justify-content: space-between;
             margin-top: 15px;
             font-size: 0.9rem;
+            color: var(--text-secondary);
         }
 
         .stats-item {
@@ -451,232 +428,262 @@
         .footer {
             text-align: center;
             margin-top: 50px;
+            color: var(--text-secondary);
             font-size: 0.9rem;
             padding: 20px;
         }
 
+        .link-box {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .link-input {
+            flex-grow: 1;
+        }
+        
+        /* File drop zone */
         .drop-zone {
-            border: 2px dashed var(--border);
-            border-radius: 20px;
+            border: 2px dashed var(--primary);
+            border-radius: 16px;
             padding: 40px 20px;
             text-align: center;
             margin: 20px 0;
             transition: all 0.3s;
-            background: var(--panel-bg);
+            background: rgba(0, 40, 80, 0.2);
             cursor: pointer;
-            box-shadow: var(--glow);
         }
-
+        
         .drop-zone:hover, .drop-zone.active {
-            box-shadow: 0 0 20px var(--glow-color);
+            background: rgba(0, 40, 80, 0.4);
+            border-color: var(--primary-dark);
         }
-
+        
         .drop-zone i {
             font-size: 3rem;
+            color: var(--primary);
             margin-bottom: 15px;
+        }
+        
+        .drop-zone p {
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .drop-zone .hint {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
         }
 
         @media (max-width: 900px) {
             .container {
                 grid-template-columns: 1fr;
             }
-            h1 { font-size: 2.2rem; }
-            .panel { padding: 25px; }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .panel {
+                padding: 25px;
+            }
         }
 
         @media (max-width: 600px) {
-            body { padding: 15px; }
-            h1 { font-size: 1.8rem; }
-            h2 { font-size: 1.5rem; }
-            .action-buttons { flex-direction: column; }
-            .logo { padding: 12px 20px; }
+            body {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            h2 {
+                font-size: 1.5rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .logo {
+                padding: 12px 20px;
+            }
         }
-
+   
+        
+        /* Added style for ID generation spinner */
         .id-generating {
             display: inline-flex;
             align-items: center;
             gap: 10px;
         }
-
+        
         .spinner {
             width: 20px;
             height: 20px;
-            border: 3px solid var(--glow-color);
+            border: 3px solid rgba(0, 255, 136, 0.3);
             border-radius: 50%;
             border-top-color: var(--primary);
             animation: spin 1s linear infinite;
         }
-
+        
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+        
+        /* Status Pill Styles */
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            margin: 15px 0;
+            transition: all 0.3s ease;
+            width: 100%;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--glass-border);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            box-shadow: 
+                0 4px 20px rgba(0, 0, 0, 0.2),
+                0 0 0 1px rgba(255, 255, 255, 0.1) inset,
+                0 0 15px rgba(0, 255, 136, 0.1) inset;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        
+        .status-pill::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(255, 255, 255, 0.2), 
+                transparent);
+            animation: wave 3s linear infinite;
+            z-index: -1;
+        }
+        
+        @keyframes wave {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .status-pill.connected {
+            background: rgba(0, 230, 118, 0.15);
+            color: var(--success);
+            border: 1px solid var(--success);
+            box-shadow: 
+                0 4px 20px rgba(0, 200, 100, 0.2),
+                0 0 0 1px rgba(0, 255, 136, 0.2) inset,
+                0 0 15px rgba(0, 255, 136, 0.2) inset;
+        }
+        
+        .status-pill.connecting {
+            background: rgba(255, 204, 0, 0.15);
+            color: var(--warning);
+            border: 1px solid var(--warning);
+            box-shadow: 
+                0 4px 20px rgba(255, 204, 0, 0.2),
+                0 0 0 1px rgba(255, 204, 0, 0.2) inset,
+                0 0 15px rgba(255, 204, 0, 0.2) inset;
+        }
+        
+        .status-pill.disconnected {
+            background: rgba(255, 82, 82, 0.15);
+            color: var(--error);
+            border: 1px solid var(--error);
+            box-shadow: 
+                0 4px 20px rgba(255, 82, 82, 0.2),
+                0 0 0 1px rgba(255, 82, 82, 0.2) inset,
+                0 0 15px rgba(255, 82, 82, 0.2) inset;
+        }
+        
+        .status-pill.error {
+            background: rgba(255, 82, 82, 0.25);
+            color: var(--error);
+            border: 1px solid var(--error);
+        }
 
+        /* Hide connection controls when connected */
         .connection-controls.hidden {
             display: none;
         }
 
+        /* Disconnect button styling */
         .disconnect-btn {
             background: transparent;
             color: var(--error);
             border: 2px solid var(--error);
             margin-top: 15px;
-            box-shadow: var(--glow);
         }
-
+        
         .disconnect-btn:hover {
-            box-shadow: 0 0 20px var(--error);
+            background: rgba(255, 82, 82, 0.15);
         }
-
+        
+        /* 3D effect for status pill */
+        .status-pill {
+            transform: perspective(500px) rotateX(5deg);
+            transform-style: preserve-3d;
+        }
+        
+        .status-pill i {
+            filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
+        }
+        
+        /* Simplified receiver panel */
         .receiver-simplified {
             text-align: center;
         }
-
+        
         .receiver-simplified .status-pill {
             margin-top: 30px;
         }
-
+        
         .receiver-simplified .file-item {
             margin: 10px auto;
             max-width: 500px;
         }
-
+        
         .receiver-simplified .progress-container {
             max-width: 500px;
             margin: 20px auto;
         }
-
+        
         .receiver-simplified .connection-stats {
             justify-content: center;
             gap: 20px;
         }
     </style>
-    <style>
-        :root {
-            --background: #121212;
-            --panel-bg: #1e1e1e;
-            --text: #ffffff;
-            --button-bg: #ffffff;
-            --button-text: #000000;
-            --glow-color: #ffffff;
-            --glow: 0 0 10px var(--glow-color);
-            --border: #ffffff;
-            --primary: #ffffff;
-            --success: #00ff00;
-            --error: #ff0000;
-            --warning: #ffff00;
-            --optimized: #00bfff;
-        }
-
-        /* Existing styles remain the same... */
-
-        /* New optimized indicator */
-        .optimized-indicator {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(0, 191, 255, 0.2);
-            border: 1px solid var(--optimized);
-            border-radius: 30px;
-            padding: 8px 15px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.9rem;
-            box-shadow: 0 0 10px var(--optimized);
-            z-index: 100;
-        }
-
-        .speed-badge {
-            background: rgba(0, 191, 255, 0.3);
-            border: 1px solid var(--optimized);
-            border-radius: 20px;
-            padding: 4px 10px;
-            font-size: 0.85rem;
-            margin-left: 5px;
-        }
-        
-        .network-quality {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-top: 10px;
-            padding: 8px;
-            border-radius: 10px;
-            background: rgba(30, 30, 30, 0.7);
-        }
-        
-        .quality-bar {
-            height: 6px;
-            flex-grow: 1;
-            background: #333;
-            border-radius: 3px;
-            overflow: hidden;
-        }
-        
-        .quality-level {
-            height: 100%;
-            background: var(--optimized);
-            border-radius: 3px;
-            transition: width 0.5s;
-        }
-        
-        .quality-labels {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.7rem;
-            margin-top: 3px;
-            color: #aaa;
-        }
-        
-        .transfer-tips {
-            background: var(--panel-bg);
-            border: 1px solid var(--optimized);
-            border-radius: 15px;
-            padding: 15px;
-            margin-top: 20px;
-            box-shadow: 0 0 15px rgba(0, 191, 255, 0.3);
-        }
-        
-        .transfer-tips h3 {
-            color: var(--optimized);
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .transfer-tips ul {
-            padding-left: 20px;
-        }
-        
-        .transfer-tips li {
-            margin: 8px 0;
-        }
-    </style>
 </head>
 <body>
-    <div class="optimized-indicator fade-from-top">
-        <i class="fas fa-bolt"></i>
-        <span>Optimized Transfer</span>
-        <span class="speed-badge">MAX SPEED</span>
-    </div>
-    
-    <div class="header fade-from-top">
-        <div class="logo animate-fade" style="--delay: 0.5s;">
+    <div class="header">
+        <div class="logo">
             <i class="fas fa-paper-plane"></i>
-            <h1>AirDropX <span style="color: var(--optimized);">ULTRA</span></h1>
+            <h1>AirDropX</h1>
         </div>
-        <p class="subtitle animate-fade" style="--delay: 0.6s;">Seamlessly transfer files between devices at MAXIMUM SPEED. No installation required.</p>
+        <p class="subtitle">Seamlessly transfer files between Android and iPhone devices. No installation required, works directly in your browser.</p>
     </div>
     
     <div class="container">
-        <div class="panel slide-from-left">
-            <div class="panel-header animate-fade" style="--delay: 0.5s;">
+        <!-- Sender Panel -->
+        <div class="panel">
+            <div class="panel-header">
                 <i class="fas fa-cloud-upload-alt"></i>
-                <h2>Send Files <span style="color: var(--optimized); font-size: 1rem;">(Optimized)</span></h2>
+                <h2>Send Files</h2>
             </div>
             
-            <div class="id-box animate-fade" style="--delay: 0.6s;">
+            <div class="id-box">
                 <i class="fas fa-key"></i>
                 <strong id="myId">
                     <span class="id-generating">
@@ -684,58 +691,49 @@
                         Generating your unique ID...
                     </span>
                 </strong>
-                <button class="btn btn-outline slide-from-left" style="animation-delay: 0.7s;" onclick="copyID()">
+                <button class="btn btn-outline" onclick="copyID()">
                     <i class="fas fa-copy"></i> Copy
                 </button>
             </div>
             
-            <div id="connectionStatusPill" class="status-pill disconnected animate-fade" style="--delay: 0.8s;">
+            <!-- Status Pill -->
+            <div id="connectionStatusPill" class="status-pill disconnected">
                 <i class="fas fa-circle"></i> ❌ Not connected
             </div>
             
-            <div class="network-quality animate-fade" style="--delay: 0.85s;">
-                <i class="fas fa-wifi"></i>
-                <div class="quality-bar">
-                    <div class="quality-level" id="networkQuality" style="width: 0%"></div>
-                </div>
-                <span id="qualityLabel">Measuring...</span>
-            </div>
-            
-            <div class="quality-labels">
-                <span>Poor</span>
-                <span>Fair</span>
-                <span>Good</span>
-                <span>Excellent</span>
-            </div>
-            
-            <div class="connection-controls animate-fade" id="senderConnectionControls" style="--delay: 0.9s;">
+            <!-- Connection Controls -->
+            <div class="connection-controls" id="senderConnectionControls">
                 <div class="action-buttons">
-                    <button class="btn btn-outline slide-from-left" style="animation-delay: 1.0s;" onclick="startSenderQRScanner()">
+                    <button class="btn btn-outline" onclick="startSenderQRScanner()">
                         <i class="fas fa-qrcode"></i> Scan QR
                     </button>
-                    <button class="btn btn-outline slide-from-right" style="animation-delay: 1.1s;" onclick="copyLink()">
+                    <button class="btn btn-outline" onclick="copyLink()">
                         <i class="fas fa-link"></i> Copy Link
                     </button>
                 </div>
                 
-                <div class="qr-container animate-fade" id="senderQr" style="--delay: 1.2s;"></div>
+                <!-- QR Code Container -->
+                <div class="qr-container" id="senderQr"></div>
                 
+                <!-- QR Scanner Container (initially hidden) -->
                 <div id="senderScanner">
                     <div class="scanner-frame"></div>
                 </div>
                 
-                <input type="text" id="peerId" placeholder="📥 Enter Receiver ID (6-digit)" maxlength="6" class="animate-fade" style="--delay: 1.3s;">
+                <input type="text" id="peerId" placeholder="📥 Enter Receiver ID (6-digit)" maxlength="6">
                 
-                <button class="btn btn-large slide-from-bottom" style="animation-delay: 1.4s; background: var(--optimized);" onclick="connectPeer()">
+                <button class="btn btn-large" onclick="connectPeer()">
                     <i class="fas fa-plug"></i> Connect to Receiver
                 </button>
             </div>
             
+            <!-- Disconnect Button -->
             <button id="disconnectBtn" class="btn btn-large disconnect-btn" onclick="disconnectPeer()" style="display: none;">
                 <i class="fas fa-unlink"></i> Disconnect
             </button>
             
-            <div class="drop-zone animate-fade" id="dropZone" style="--delay: 1.5s;">
+            <!-- File Drop Zone -->
+            <div class="drop-zone" id="dropZone">
                 <i class="fas fa-cloud-upload-alt"></i>
                 <p>Drag & Drop files here</p>
                 <p class="hint">or click to select files</p>
@@ -745,90 +743,67 @@
             
             <div id="filePreview" style="margin: 20px 0;"></div>
             
-            <button class="btn btn-large slide-from-bottom" style="animation-delay: 1.6s; background: var(--optimized);" onclick="processFiles()">
-                <i class="fas fa-paper-plane"></i> Send Files at MAX SPEED
+            <button class="btn btn-large" onclick="processFiles()">
+                <i class="fas fa-paper-plane"></i> Send Files
             </button>
             
-            <div class="progress-container animate-fade" style="--delay: 1.7s;">
+            <div class="progress-container">
                 <div class="progress-label">
                     <span>Sending progress</span>
                     <span id="sendPercentage">0%</span>
                 </div>
                 <div class="progress">
-                    <div class="progress-bar" id="sendProgress" style="width: 0%; background: var(--optimized);"></div>
+                    <div class="progress-bar" id="sendProgress" style="width: 0%"></div>
                 </div>
             </div>
             
-            <div class="connection-stats animate-fade" style="--delay: 1.8s;">
+            <div class="connection-stats">
                 <div class="stats-item">
                     <i class="fas fa-microchip"></i> Connection: <span id="connType" class="stats-value">Establishing...</span>
                 </div>
                 <div class="stats-item">
                     <i class="fas fa-bolt"></i> Speed: <span id="transferSpeed" class="stats-value">0 MB/s</span>
                 </div>
-                <div class="stats-item">
-                    <i class="fas fa-tachometer-alt"></i> Optimization: <span id="optimizationLevel" class="stats-value">Active</span>
-                </div>
-            </div>
-            
-            <div class="transfer-tips animate-fade" style="--delay: 1.9s;">
-                <h3><i class="fas fa-lightbulb"></i> MAX SPEED Tips</h3>
-                <ul>
-                    <li>Keep devices on the same WiFi network for fastest transfers</li>
-                    <li>Close bandwidth-heavy apps during transfer</li>
-                    <li>Transfer multiple files simultaneously for better efficiency</li>
-                    <li>Text files are compressed for faster transfer</li>
-                </ul>
             </div>
         </div>
 
-        <div class="panel slide-from-right receiver-simplified">
-            <div class="panel-header animate-fade" style="--delay: 0.5s;">
+        <!-- Receiver Panel (Simplified) -->
+        <div class="panel receiver-simplified">
+            <div class="panel-header">
                 <i class="fas fa-cloud-download-alt"></i>
-                <h2>Receive Files <span style="color: var(--optimized); font-size: 1rem;">(Optimized)</span></h2>
+                <h2>Receive Files</h2>
             </div>
             
-            <div id="receiverStatusPill" class="status-pill animate-fade" style="--delay: 0.6s;">
+            <div id="receiverStatusPill" class="status-pill">
                 <i class="fas fa-circle"></i> 🟢 Ready to receive files
-            </div>
-            
-            <div class="network-quality animate-fade" style="--delay: 0.65s;">
-                <i class="fas fa-wifi"></i>
-                <div class="quality-bar">
-                    <div class="quality-level" id="receiverNetworkQuality" style="width: 0%"></div>
-                </div>
-                <span id="receiverQualityLabel">Measuring...</span>
             </div>
             
             <div id="fileList" style="margin-top: 30px;"></div>
             
-            <div class="progress-container animate-fade" style="--delay: 0.7s;">
+            <div class="progress-container">
                 <div class="progress-label">
                     <span>Receiving progress</span>
                     <span id="receivePercentage">0%</span>
                 </div>
                 <div class="progress">
-                    <div class="progress-bar" id="receiveProgress" style="width: 0%; background: var(--optimized);"></div>
+                    <div class="progress-bar" id="receiveProgress" style="width: 0%"></div>
                 </div>
             </div>
             
-            <div class="connection-stats animate-fade" style="--delay: 0.8s;">
+            <div class="connection-stats">
                 <div class="stats-item">
                     <i class="fas fa-wifi"></i> Status: <span id="receiveConnType" class="stats-value">Waiting...</span>
                 </div>
                 <div class="stats-item">
                     <i class="fas fa-tachometer-alt"></i> Speed: <span id="receiveSpeed" class="stats-value">0 MB/s</span>
                 </div>
-                <div class="stats-item">
-                    <i class="fas fa-compress-arrows-alt"></i> Compression: <span id="compressionStatus" class="stats-value">Active</span>
-                </div>
             </div>
         </div>
     </div>
     
-    <div class="footer fade-from-bottom">
-        <p class="animate-fade" style="--delay: 0.5s;">AirDropX ULTRA - Optimized for MAXIMUM transfer speed</p>
-        <p class="animate-fade" style="--delay: 0.6s;">All data is transferred directly between devices using advanced optimization techniques.</p>
+    <div class="footer">
+        <p>AirDropX - Fast, secure, and cross-platform file transfers. No installation required.</p>
+        <p>All data is transferred directly between devices - no servers involved.</p>
     </div>
     
     <div class="notification" id="notification">
@@ -840,63 +815,48 @@
     </div>
 
     <script>
-        // Optimized transfer settings
-        const BASE_CHUNK_SIZE = 64 * 1024 * 1024; // 64 MB base chunk size
-        const MAX_PARALLEL_CHUNKS = 20; // Increased parallel transfers
-        const AUTO_RECONNECT_DELAY = 2000; // Faster reconnect
-        const NETWORK_TEST_INTERVAL = 5000; // Network quality check every 5s
-        const TEXT_COMPRESSION_THRESHOLD = 1024; // Compress text files larger than 1KB
-
+        // Configuration
+        const CHUNK_SIZE = 16 * 1024 * 1024; // 16MB chunks for large files
+        const MAX_PARALLEL_CHUNKS = 10;
+        const AUTO_RECONNECT_DELAY = 3000; // 3 seconds
+        
+        // Global variables
         let peer = null;
         let conn = null;
         let peerId = null;
         const receivedFiles = new Map();
         let videoElement = null;
+        let scannerActive = false;
         let senderScannerActive = false;
-        let transferStats = { startTime: 0, bytesTransferred: 0 };
+        let transferStats = {
+            startTime: 0,
+            bytesTransferred: 0
+        };
         let reconnectAttempts = 0;
         let idGenerationAttempts = 0;
-        let networkQualityMonitor = null;
-        let dynamicChunkSize = BASE_CHUNK_SIZE;
-        let currentParallelism = MAX_PARALLEL_CHUNKS;
-        let networkQuality = 0;
         
-        // Enhanced TURN/STUN servers for better connectivity
-        const ICE_SERVERS = [
-            { urls: 'stun:stun.l.google.com:19302' },
-            { urls: 'stun:stun1.l.google.com:19302' },
-            { urls: 'stun:stun2.l.google.com:19302' },
-            { 
-                urls: 'turn:numb.viagenie.ca',
-                username: 'webrtc@live.com',
-                credential: 'muazkh'
-            },
-            {
-                urls: 'turn:openrelay.metered.ca:80',
-                username: 'openrelayproject',
-                credential: 'openrelayproject'
-            },
-            {
-                urls: 'turn:openrelay.metered.ca:443',
-                username: 'openrelayproject',
-                credential: 'openrelayproject'
-            },
-            {
-                urls: 'turn:openrelay.metered.ca:443?transport=tcp',
-                username: 'openrelayproject',
-                credential: 'openrelayproject'
-            }
-        ];
-
+        // Generate short 6-digit ID
         function generateShortId() {
             return Math.floor(100000 + Math.random() * 900000).toString();
         }
-
+        
+        // Initialize Peer
         function initializePeer() {
             const shortId = generateShortId();
+            
             peer = new Peer(shortId, {
-                config: { iceServers: ICE_SERVERS },
-                debug: 0 // Reduce logging for better performance
+                config: {
+                    iceServers: [
+                        { urls: 'stun:stun.l.google.com:19302' },
+                        { urls: 'stun:global.stun.twilio.com:3478' },
+                        { 
+                            urls: 'turn:numb.viagenie.ca',
+                            username: 'webrtc@live.com',
+                            credential: 'muazkh'
+                        }
+                    ]
+                },
+                debug: 0
             });
 
             peer.on('open', id => {
@@ -905,25 +865,27 @@
                 generateQRCode(id);
                 updateStatusPill('connectionStatusPill', 'Ready to connect', '');
                 updateStats('connType', 'Peer established');
+                
+                // Auto-connect if link has peer ID
                 const urlParams = new URLSearchParams(window.location.search);
                 const connectTo = urlParams.get('connect');
                 if (connectTo) {
                     document.getElementById('peerId').value = connectTo;
-                    setTimeout(() => connectPeer(), 300);
+                    setTimeout(() => connectPeer(), 500);
                 }
-                
-                // Start network quality monitoring
-                startNetworkQualityMonitoring();
             });
 
             peer.on('error', err => {
                 console.error('Peer Error:', err);
+                
+                // Handle ID collision by generating a new ID
                 if (err.type === 'unavailable-id' && idGenerationAttempts < 5) {
                     idGenerationAttempts++;
                     setTimeout(initializePeer, 500);
                 } else {
                     showNotification(`Error: ${err.type}`, 'error');
                     updateStatusPill('connectionStatusPill', `Error: ${err.type}`, 'error');
+                    
                     if (err.type === 'peer-unavailable' || err.type === 'network') {
                         setTimeout(initializePeer, AUTO_RECONNECT_DELAY);
                     }
@@ -937,80 +899,14 @@
                 updateStatusPill('receiverStatusPill', 'Connected to sender', 'connected');
                 updateStats('receiveConnType', 'Connected');
             });
-
+            
             peer.on('disconnected', () => {
                 updateStatusPill('connectionStatusPill', 'Connection lost. Reconnecting...', 'disconnected');
                 setTimeout(initializePeer, AUTO_RECONNECT_DELAY);
             });
         }
-
-        function startNetworkQualityMonitoring() {
-            if (networkQualityMonitor) clearInterval(networkQualityMonitor);
-            
-            networkQualityMonitor = setInterval(() => {
-                if (conn && conn._dc) {
-                    const dc = conn._dc;
-                    
-                    // Calculate network quality based on bufferedAmount and connection state
-                    let quality = 80; // base quality
-                    
-                    // Adjust based on buffered amount (lower is better)
-                    if (dc.bufferedAmount > 5 * 1024 * 1024) { // >5MB buffered
-                        quality -= 30;
-                    } else if (dc.bufferedAmount > 1 * 1024 * 1024) { // >1MB buffered
-                        quality -= 15;
-                    }
-                    
-                    // Adjust based on connection type
-                    if (conn.type === 'relayed') {
-                        quality -= 10; // TURN relayed connections are slower
-                    }
-                    
-                    // Keep within bounds
-                    quality = Math.max(10, Math.min(100, quality));
-                    networkQuality = quality;
-                    
-                    // Update UI
-                    document.getElementById('networkQuality').style.width = `${quality}%`;
-                    document.getElementById('receiverNetworkQuality').style.width = `${quality}%`;
-                    
-                    // Set quality label
-                    let qualityLabel = 'Excellent';
-                    if (quality < 30) qualityLabel = 'Poor';
-                    else if (quality < 60) qualityLabel = 'Fair';
-                    else if (quality < 85) qualityLabel = 'Good';
-                    
-                    document.getElementById('qualityLabel').textContent = qualityLabel;
-                    document.getElementById('receiverQualityLabel').textContent = qualityLabel;
-                    
-                    // Adjust transfer parameters based on quality
-                    adjustTransferParameters(quality);
-                }
-            }, NETWORK_TEST_INTERVAL);
-        }
-
-        function adjustTransferParameters(quality) {
-            // Adjust chunk size based on network quality
-            dynamicChunkSize = Math.max(
-                4 * 1024 * 1024, // min 4MB
-                Math.min(
-                    BASE_CHUNK_SIZE, // max 64MB
-                    Math.floor(BASE_CHUNK_SIZE * (quality / 100))
-                )
-            );
-            
-            // Adjust parallelism based on quality
-            currentParallelism = Math.max(
-                5, // min 5 parallel chunks
-                Math.min(
-                    MAX_PARALLEL_CHUNKS, // max 20
-                    Math.floor(MAX_PARALLEL_CHUNKS * (quality / 100))
-                )
-            );
-            
-            updateStats('optimizationLevel', `Level ${Math.round(quality/20)}`);
-        }
-
+        
+        // Connection management
         function connectPeer() {
             const connectTo = document.getElementById('peerId').value.trim();
             if (!connectTo) {
@@ -1018,35 +914,39 @@
                 updateStatusPill('connectionStatusPill', 'Enter receiver ID', 'error');
                 return;
             }
+            
             if (connectTo.length !== 6) {
                 showNotification('ID must be 6 digits', 'error');
                 return;
             }
+            
             updateStatusPill('connectionStatusPill', 'Connecting to receiver...', 'connecting');
-            conn = peer.connect(connectTo, { 
-                reliable: true, 
-                serialization: 'binary', 
-                metadata: { type: 'sender' },
-                label: 'file-transfer',
-                priority: 'high'
+            
+            conn = peer.connect(connectTo, {
+                reliable: true,
+                serialization: 'binary',
+                metadata: { type: 'sender' }
             });
+            
             conn.on('open', () => {
                 setupConnection(conn);
                 showNotification('Connected to receiver!', 'success');
                 updateStats('connType', 'P2P connected');
             });
+            
             conn.on('error', err => {
                 console.error('Connection Error:', err);
                 showNotification(`Connection error: ${err.message}`, 'error');
                 updateStatusPill('connectionStatusPill', `Error: ${err.message}`, 'error');
                 toggleConnectionControls(false);
+                
                 reconnectAttempts++;
                 if (reconnectAttempts <= 3) {
                     setTimeout(() => connectPeer(), AUTO_RECONNECT_DELAY);
                 }
             });
         }
-
+        
         function setupConnection(connection) {
             connection.on('data', handleIncomingData);
             connection.on('close', () => {
@@ -1055,27 +955,35 @@
                 updateStatusPill('receiverStatusPill', 'Disconnected', 'disconnected');
                 updateStats('receiveConnType', 'Disconnected');
                 toggleConnectionControls(false);
-                if (networkQualityMonitor) clearInterval(networkQualityMonitor);
             });
+            
             updateStatusPill('connectionStatusPill', `Connected to ${connection.peer.substring(0, 8)}...`, 'connected');
             reconnectAttempts = 0;
             updateStats('connType', 'P2P connected');
             toggleConnectionControls(true);
+            
+            // Trigger vibration on both devices
             vibrateDevice();
-            startNetworkQualityMonitoring();
         }
-
+        
+        // Vibration function
         function vibrateDevice() {
             try {
-                if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+                // Check if vibration is supported
+                if (navigator.vibrate) {
+                    // Vibrate pattern: 100ms on, 50ms off, 100ms on
+                    navigator.vibrate([100, 50, 100]);
+                }
             } catch (e) {
                 console.log("Vibration not supported");
             }
         }
-
+        
+        // Toggle connection controls
         function toggleConnectionControls(connected) {
             const controls = document.getElementById('senderConnectionControls');
             const disconnectBtn = document.getElementById('disconnectBtn');
+            
             if (connected) {
                 controls.classList.add('hidden');
                 disconnectBtn.style.display = 'block';
@@ -1084,193 +992,342 @@
                 disconnectBtn.style.display = 'none';
             }
         }
-
+        
+        // Disconnect function
         function disconnectPeer() {
             if (conn) {
                 conn.close();
                 conn = null;
             }
+            
             updateStatusPill('connectionStatusPill', 'Disconnected', 'disconnected');
             toggleConnectionControls(false);
+            
+            // Update receiver status
             updateStatusPill('receiverStatusPill', 'Ready to receive files', '');
             updateStats('receiveConnType', 'Disconnected');
-            if (networkQualityMonitor) clearInterval(networkQualityMonitor);
         }
-
+        
+        // Update status pill
         function updateStatusPill(elementId, text, status) {
             const pill = document.getElementById(elementId);
             if (!pill) return;
+            
             pill.className = `status-pill ${status}`;
-            let icon = status === 'connected' ? '🔗' : status === 'connecting' ? '🔄' : status === 'error' ? '⚠️' : '❌';
+            
+            // Add icon based on status
+            let icon = '';
+            if (status === 'connected') icon = '🔗';
+            else if (status === 'connecting') icon = '🔄';
+            else if (status === 'error') icon = '⚠️';
+            else icon = '❌';
+            
             pill.innerHTML = `<i class="fas fa-circle"></i> ${icon} ${text}`;
         }
-
+        
+        // File transfer functions
         async function processFiles() {
             if (!conn || !conn.open) {
                 showNotification('Not connected to receiver', 'error');
                 return;
             }
+            
             const files = document.getElementById('fileInput').files;
             if (!files.length) {
                 showNotification('Please select files first', 'error');
                 return;
             }
+            
             try {
                 transferStats.startTime = Date.now();
                 transferStats.bytesTransferred = 0;
                 
-                // Batch processing for multiple files
-                const transferPromises = [];
                 for (const file of files) {
-                    transferPromises.push(transferFile(file));
+                    await transferFile(file);
                 }
                 
-                await Promise.all(transferPromises);
                 showNotification('All files sent successfully!', 'success');
             } catch(err) {
                 showNotification(`Error: ${err.message}`, 'error');
             }
         }
-
+        
         async function transferFile(file) {
             const fileId = Date.now() + '-' + Math.random().toString(36).slice(2, 8);
-            const totalChunks = Math.ceil(file.size / dynamicChunkSize);
+            const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
             
-            // Compress text-based files
-            let compressed = false;
-            let fileToSend = file;
-            
-            if (file.type.startsWith('text/') || 
-                file.type === 'application/json' || 
-                file.type === 'application/xml') {
-                if (file.size > TEXT_COMPRESSION_THRESHOLD) {
-                    try {
-                        const compressedData = await compressText(await readFileAsText(file));
-                        fileToSend = new File([compressedData], file.name, { type: 'application/gzip' });
-                        compressed = true;
-                    } catch (e) {
-                        console.log('Compression failed, sending original', e);
-                    }
-                }
-            }
-            
-            conn.send({ 
-                type: 'metadata', 
-                id: fileId, 
-                name: fileToSend.name, 
-                size: fileToSend.size, 
-                mime: fileToSend.type, 
-                totalChunks,
-                compressed,
-                originalSize: compressed ? file.size : null
+            // Send file metadata
+            conn.send({
+                type: 'metadata',
+                id: fileId,
+                name: file.name,
+                size: file.size,
+                mime: file.type,
+                totalChunks
             });
             
-            createFilePreview(fileToSend, fileId, compressed);
-            const chunks = Array.from({length: totalChunks}, (_, i) => i);
+            // Create file preview
+            createFilePreview(file, fileId);
             
+            // Send file in parallel chunks
+            const chunks = Array.from({length: totalChunks}, (_, i) => i);
             while(chunks.length) {
-                const batch = chunks.splice(0, currentParallelism);
-                await Promise.all(batch.map(i => sendChunk(fileToSend, i, fileId)));
+                const batch = chunks.splice(0, MAX_PARALLEL_CHUNKS);
+                await Promise.all(batch.map(i => sendChunk(file, i, fileId)));
+                
                 const transferred = totalChunks - chunks.length;
                 const progress = Math.min(100, (transferred / totalChunks) * 100);
                 updateProgress('sendProgress', progress);
                 document.getElementById('sendPercentage').textContent = `${Math.round(progress)}%`;
+                
+                // Update transfer speed
                 updateTransferSpeed();
             }
         }
-
-        function readFileAsText(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = reject;
-                reader.readAsText(file);
-            });
-        }
-
-        function compressText(text) {
-            return new Promise((resolve, reject) => {
-                try {
-                    const compressed = pako.gzip(text);
-                    resolve(compressed);
-                } catch (e) {
-                    reject(e);
-                }
-            });
-        }
-
+        
         async function sendChunk(file, index, fileId) {
             return new Promise(resolve => {
                 const reader = new FileReader();
-                const start = index * dynamicChunkSize;
-                const end = Math.min(start + dynamicChunkSize, file.size);
+                const start = index * CHUNK_SIZE;
+                const end = Math.min(start + CHUNK_SIZE, file.size);
                 const chunk = file.slice(start, end);
+                
                 reader.onload = () => {
-                    conn.send({ type: 'chunk', id: fileId, index, data: reader.result });
+                    conn.send({
+                        type: 'chunk',
+                        id: fileId,
+                        index,
+                        data: reader.result
+                    });
+                    
                     transferStats.bytesTransferred += chunk.size;
                     resolve();
                 };
+                
                 reader.readAsArrayBuffer(chunk);
             });
         }
-
+        
         function handleIncomingData(data) {
             if (data.type === 'metadata') handleMetadata(data);
             if (data.type === 'chunk') handleChunk(data);
         }
-
+        
         function handleMetadata(meta) {
-            receivedFiles.set(meta.id, { 
-                name: meta.name, 
-                chunks: new Array(meta.totalChunks), 
-                received: 0, 
-                size: meta.size, 
-                mime: meta.mime, 
-                compressed: meta.compressed,
-                originalSize: meta.originalSize,
-                startTime: Date.now() 
+            receivedFiles.set(meta.id, {
+                name: meta.name,
+                chunks: new Array(meta.totalChunks),
+                received: 0,
+                size: meta.size,
+                mime: meta.mime,
+                startTime: Date.now()
             });
             addFileToList(meta);
-            updateStats('compressionStatus', meta.compressed ? 'Enabled' : 'Not needed');
         }
-
+        
         function handleChunk(chunk) {
             const file = receivedFiles.get(chunk.id);
             if (!file) return;
+            
             file.chunks[chunk.index] = chunk.data;
             file.received += chunk.data.byteLength;
+            
             const progress = Math.min(100, (file.received / file.size) * 100);
             updateFileProgress(chunk.id, progress);
             updateProgress('receiveProgress', progress);
             document.getElementById('receivePercentage').textContent = `${Math.round(progress)}%`;
+            
+            // Update transfer speed
             updateReceiveSpeed(file);
+            
             if (file.received >= file.size) {
                 finalizeFile(file);
                 updateStats('receiveSpeed', 'Complete');
             }
         }
-
-        // The rest of the functions remain similar to original with optimizations...
-        // Only the key changes are shown above for brevity
-
+        
+        // QR Code functions
         function generateQRCode(id) {
             document.getElementById('senderQr').innerHTML = '';
-            new QRCode(document.getElementById('senderQr'), { 
-                text: id, 
-                width: 180, 
-                height: 180, 
-                colorDark: "#ffffff", 
-                colorLight: "transparent", 
-                correctLevel: QRCode.CorrectLevel.H 
+            new QRCode(document.getElementById('senderQr'), {
+                text: id,
+                width: 180,
+                height: 180,
+                colorDark: "#00ff88",
+                colorLight: "transparent",
+                correctLevel: QRCode.CorrectLevel.H
             });
         }
+        
+        function startSenderQRScanner() {
+            if (senderScannerActive) {
+                stopSenderQRScanner();
+                return;
+            }
+            
+            senderScannerActive = true;
+            const qrDiv = document.getElementById('senderQr');
+            const scannerDiv = document.getElementById('senderScanner');
+            
+            // Hide QR code, show scanner
+            qrDiv.style.display = 'none';
+            scannerDiv.style.display = 'block';
+            
+            // Update button text
+            document.querySelector('.btn-outline .fa-qrcode').parentNode.innerHTML = 
+                '<i class="fas fa-times"></i> Cancel Scan';
+            
+            // Start camera
+            startCamera(scannerDiv, true);
+        }
+        
+        function stopSenderQRScanner() {
+            senderScannerActive = false;
+            const qrDiv = document.getElementById('senderQr');
+            const scannerDiv = document.getElementById('senderScanner');
+            
+            // Show QR code, hide scanner
+            qrDiv.style.display = 'block';
+            scannerDiv.style.display = 'none';
+            
+            // Update button text
+            document.querySelector('.btn-outline .fa-times').parentNode.innerHTML = 
+                '<i class="fas fa-qrcode"></i> Scan QR';
+            
+            // Stop camera
+            if (videoElement && videoElement.srcObject) {
+                videoElement.srcObject.getTracks().forEach(track => track.stop());
+                scannerDiv.removeChild(videoElement);
+                videoElement = null;
+            }
+        }
+        
+        function startCamera(container, isSender) {
+            if (videoElement) {
+                container.appendChild(videoElement);
+                requestAnimationFrame(() => scanQR(isSender));
+                return;
+            }
+            
+            videoElement = document.createElement('video');
+            container.appendChild(videoElement);
+            
+            navigator.mediaDevices.getUserMedia({ 
+                video: { facingMode: "environment" } 
+            }).then(stream => {
+                videoElement.srcObject = stream;
+                videoElement.setAttribute("playsinline", true);
+                videoElement.play();
+                requestAnimationFrame(() => scanQR(isSender));
+            }).catch(err => {
+                console.error('Camera error:', err);
+                showNotification('Camera access required for scanning', 'error');
+                if (isSender) stopSenderQRScanner();
+            });
+        }
+        
+        function scanQR(isSender) {
+            if (!videoElement || videoElement.readyState !== 4) {
+                requestAnimationFrame(() => scanQR(isSender));
+                return;
+            }
 
-        // File preview with compression indicator
-        function createFilePreview(file, fileId, compressed = false) {
+            const canvas = document.createElement('canvas');
+            canvas.width = videoElement.videoWidth;
+            canvas.height = videoElement.videoHeight;
+            const context = canvas.getContext('2d');
+            
+            context.drawImage(videoElement, 0, 0);
+            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+            const code = jsQR(imageData.data, imageData.width, imageData.height);
+
+            if (code) {
+                if (isSender) {
+                    stopSenderQRScanner();
+                    document.getElementById('peerId').value = code.data;
+                    connectPeer();
+                }
+                showNotification('QR code scanned successfully!', 'success');
+            } else {
+                requestAnimationFrame(() => scanQR(isSender));
+            }
+        }
+        
+        // File Drag and Drop
+        function setupDragAndDrop() {
+            const dropZone = document.getElementById('dropZone');
+            const fileInput = document.getElementById('fileInput');
+            
+            // Click on drop zone to open file dialog
+            dropZone.addEventListener('click', () => {
+                fileInput.click();
+            });
+            
+            // Highlight drop zone on drag over
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            // Highlight drop zone on drag over
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => {
+                    dropZone.classList.add('active');
+                }, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => {
+                    dropZone.classList.remove('active');
+                }, false);
+            });
+            
+            // Handle file drop
+            dropZone.addEventListener('drop', (e) => {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                handleFiles(files);
+            }, false);
+            
+            // Handle file input change
+            fileInput.addEventListener('change', () => {
+                handleFiles(fileInput.files);
+            });
+        }
+        
+        function handleFiles(files) {
+            if (!files.length) return;
+            
+            // Update file input
+            const dataTransfer = new DataTransfer();
+            for (let i = 0; i < files.length; i++) {
+                dataTransfer.items.add(files[i]);
+            }
+            document.getElementById('fileInput').files = dataTransfer.files;
+            
+            // Create file previews
+            const preview = document.getElementById('filePreview');
+            preview.innerHTML = '';
+            
+            for (const file of files) {
+                const fileId = Date.now() + '-' + Math.random().toString(36).slice(2, 8);
+                createFilePreview(file, fileId);
+            }
+            
+            showNotification(`${files.length} file(s) selected`, 'success');
+        }
+        
+        // UI Functions
+        function createFilePreview(file, fileId) {
             const preview = document.getElementById('filePreview');
             const div = document.createElement('div');
             div.className = 'file-item';
             div.id = `file-preview-${fileId}`;
+            
             const fileType = file.type.split('/')[0];
             let icon = 'file';
             if (fileType === 'image') icon = 'file-image';
@@ -1278,98 +1335,170 @@
             else if (fileType === 'audio') icon = 'file-audio';
             else if (file.type.includes('pdf')) icon = 'file-pdf';
             
-            let sizeInfo = formatFileSize(file.size);
-            if (compressed) {
-                sizeInfo += ' <span class="speed-badge" style="font-size:0.8em">compressed</span>';
-            }
-            
             div.innerHTML = `
                 <i class="fas fa-${icon} file-icon"></i>
                 <div class="file-info">
                     <div class="file-name">${file.name}</div>
-                    <div class="file-size">${sizeInfo}</div>
+                    <div class="file-size">${formatFileSize(file.size)}</div>
                 </div>
                 <div class="progress" style="width: 100px; margin-left: 10px;">
                     <div class="progress-bar" style="width: 0%"></div>
                 </div>
             `;
+            
             preview.appendChild(div);
             return div;
         }
-
-        function updateTransferSpeed() {
-            const elapsed = (Date.now() - transferStats.startTime) / 1000;
-            if (elapsed < 0.1) return;
-            const bytesPerSec = transferStats.bytesTransferred / elapsed;
-            const speed = bytesPerSec / (1024 * 1024);
-            updateStats('transferSpeed', `${speed.toFixed(2)} MB/s`);
-        }
-
-        function updateReceiveSpeed(file) {
-            const elapsed = (Date.now() - file.startTime) / 1000;
-            if (elapsed < 0.1) return;
-            const bytesPerSec = file.received / elapsed;
-            const speed = bytesPerSec / (1024 * 1024);
-            updateStats('receiveSpeed', `${speed.toFixed(2)} MB/s`);
-        }
-
-        // Finalize file with decompression if needed
-        async function finalizeFile(file) {
-            let blob = new Blob(file.chunks, { type: file.mime });
+        
+        function addFileToList(meta) {
+            const fileList = document.getElementById('fileList');
+            const div = document.createElement('div');
+            div.className = 'file-item';
+            div.id = `file-${meta.id}`;
             
-            // Decompress if needed
-            if (file.compressed) {
-                try {
-                    const decompressed = await decompressBlob(blob);
-                    blob = decompressed;
-                } catch (e) {
-                    console.error('Decompression failed', e);
-                    showNotification(`Decompression failed for ${file.name}`, 'error');
-                }
+            const fileType = meta.mime.split('/')[0];
+            let icon = 'file';
+            if (fileType === 'image') icon = 'file-image';
+            else if (fileType === 'video') icon = 'file-video';
+            else if (fileType === 'audio') icon = 'file-audio';
+            else if (meta.mime.includes('pdf')) icon = 'file-pdf';
+            
+            div.innerHTML = `
+                <i class="fas fa-${icon} file-icon"></i>
+                <div class="file-info">
+                    <div class="file-name">${meta.name}</div>
+                    <div class="file-size">${formatFileSize(meta.size)}</div>
+                </div>
+                <div class="progress" style="width: 100px">
+                    <div class="progress-bar" style="width: 0%"></div>
+                </div>
+            `;
+            
+            fileList.appendChild(div);
+        }
+        
+        function updateFileProgress(fileId, progress) {
+            const elem = document.querySelector(`#file-${fileId} .progress-bar`);
+            if (elem) {
+                elem.style.width = `${progress}%`;
+                elem.parentElement.previousElementSibling.querySelector('.file-size').textContent = 
+                    `${Math.round(progress)}% • ${formatFileSize(receivedFiles.get(fileId).received)} / ${formatFileSize(receivedFiles.get(fileId).size)}`;
+            }
+        }
+        
+        function updateProgress(barId, percent) {
+            document.getElementById(barId).style.width = `${percent}%`;
+        }
+        
+        function copyID() {
+            if (!peerId) return;
+            
+            navigator.clipboard.writeText(peerId).then(() => {
+                showNotification('ID copied to clipboard!', 'success');
+            }).catch(err => {
+                const textArea = document.createElement('textarea');
+                textArea.value = peerId;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showNotification('ID copied to clipboard!', 'success');
+            });
+        }
+        
+        function copyLink() {
+            if (!peerId) {
+                showNotification('ID not generated yet', 'error');
+                return;
             }
             
+            const link = `${window.location.origin}${window.location.pathname}?connect=${peerId}`;
+            navigator.clipboard.writeText(link).then(() => {
+                showNotification('Shareable link copied!', 'success');
+            });
+        }
+        
+        function showNotification(message, type) {
+            const notification = document.getElementById('notification');
+            const icon = notification.querySelector('i');
+            const title = notification.querySelector('h3');
+            const content = notification.querySelector('p');
+            
+            // Set notification content
+            title.textContent = type === 'success' ? 'Success!' : 'Error!';
+            content.textContent = message;
+            
+            // Set icon and color
+            if (type === 'success') {
+                icon.className = 'fas fa-check-circle';
+                notification.style.borderLeft = `4px solid var(--success)`;
+            } else {
+                icon.className = 'fas fa-exclamation-circle';
+                notification.style.borderLeft = `4px solid var(--error)`;
+            }
+            
+            // Show notification
+            notification.classList.add('show');
+            
+            // Auto-hide after 3 seconds
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+        
+        function updateTransferSpeed() {
+            const elapsed = (Date.now() - transferStats.startTime) / 1000; // in seconds
+            if (elapsed < 0.1) return; // Avoid division by zero
+            
+            const bytesPerSec = transferStats.bytesTransferred / elapsed;
+            const speed = bytesPerSec / (1024 * 1024); // in MB/s
+            updateStats('transferSpeed', `${speed.toFixed(2)} MB/s`);
+        }
+        
+        function updateReceiveSpeed(file) {
+            const elapsed = (Date.now() - file.startTime) / 1000; // in seconds
+            if (elapsed < 0.1) return; // Avoid division by zero
+            
+            const bytesPerSec = file.received / elapsed;
+            const speed = bytesPerSec / (1024 * 1024); // in MB/s
+            updateStats('receiveSpeed', `${speed.toFixed(2)} MB/s`);
+        }
+        
+        function updateStats(elementId, value) {
+            const elem = document.getElementById(elementId);
+            if (elem) elem.textContent = value;
+        }
+        
+        function finalizeFile(file) {
+            const blob = new Blob(file.chunks, { type: file.mime });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
             link.download = file.name;
             link.click();
+            
+            // Show notification
             showNotification(`File "${file.name}" downloaded!`, 'success');
         }
-
-        function decompressBlob(blob) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = () => {
-                    try {
-                        const decompressed = pako.ungzip(new Uint8Array(reader.result), { to: 'string' });
-                        resolve(new Blob([decompressed], { type: 'text/plain' }));
-                    } catch (e) {
-                        reject(e);
-                    }
-                };
-                reader.onerror = reject;
-                reader.readAsArrayBuffer(blob);
-            });
+        
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+            else if (bytes < 1073741824) return (bytes / 1048576).toFixed(1) + ' MB';
+            else return (bytes / 1073741824).toFixed(1) + ' GB';
         }
-
-        // Initialize with compression library
+        
+        // Initialize when page loads
         window.addEventListener('load', function() {
-            // Load compression library dynamically
-            const script = document.createElement('script');
-            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pako/2.0.4/pako.min.js';
-            script.onload = initializePeer;
-            document.head.appendChild(script);
-            
+            initializePeer();
             setupDragAndDrop();
+            
+            // Auto-connect when 6-digit ID is entered
             document.getElementById('peerId').addEventListener('input', function() {
                 const id = this.value.trim();
-                if (id.length === 6) connectPeer();
+                if (id.length === 6) {
+                    connectPeer();
+                }
             });
-        });
-
-        document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(() => {
-                document.body.classList.add('loaded');
-            }, 100);
         });
     </script>
 </body>
