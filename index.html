@@ -15,7 +15,8 @@
             --text: #ffffff;
             --button-bg: #ffffff;
             --button-text: #000000;
-            --glow: rgba(255, 255, 255, 0.5);
+            --glow-color: #ffffff;
+            --glow: 0 0 10px var(--glow-color);
             --border: #ffffff;
             --primary: #ffffff;
             --success: #00ff00;
@@ -27,7 +28,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'Segoe UI', sans-serif;
         }
 
         body {
@@ -36,10 +37,9 @@
             min-height: 100vh;
             padding: 20px;
             overflow-x: hidden;
-            position: relative;
         }
 
-        /* Animation Classes - Initial States */
+        /* Animation Initial States */
         .fade-from-top {
             opacity: 0;
             transform: translateY(-50px);
@@ -58,6 +58,11 @@
         .slide-from-right {
             opacity: 0;
             transform: translateX(100%);
+        }
+
+        .slide-from-bottom {
+            opacity: 0;
+            transform: translateY(100%);
         }
 
         .animate-fade {
@@ -81,12 +86,16 @@
             animation: slideInRight 0.5s ease-out forwards;
         }
 
+        body.loaded .slide-from-bottom {
+            animation: slideInBottom 0.5s ease-out forwards;
+        }
+
         body.loaded .animate-fade {
             animation: fadeIn 0.3s ease-out forwards;
             animation-delay: var(--delay);
         }
 
-        /* Keyframes Definitions */
+        /* Keyframes */
         @keyframes fadeInDown {
             from { opacity: 0; transform: translateY(-50px); }
             to { opacity: 1; transform: translateY(0); }
@@ -107,6 +116,11 @@
             to { opacity: 1; transform: translateX(0); }
         }
 
+        @keyframes slideInBottom {
+            from { opacity: 0; transform: translateY(100%); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
@@ -115,8 +129,6 @@
         .header {
             text-align: center;
             margin: 20px 0 40px;
-            position: relative;
-            z-index: 2;
         }
 
         .logo {
@@ -126,19 +138,18 @@
             margin-bottom: 20px;
             background: var(--panel-bg);
             padding: 15px 30px;
-            border-radius: 10px;
+            border-radius: 20px;
             border: 1px solid var(--border);
+            box-shadow: var(--glow);
         }
 
         h1 {
             font-size: 2.8rem;
             font-weight: 700;
-            color: var(--text);
         }
 
         .subtitle {
             font-size: 1.2rem;
-            color: var(--text);
             max-width: 600px;
             margin: 0 auto 30px;
             line-height: 1.6;
@@ -150,16 +161,14 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 30px;
-            position: relative;
-            z-index: 2;
         }
 
         .panel {
             background: var(--panel-bg);
-            border-radius: 10px;
+            border-radius: 20px;
             padding: 30px;
             border: 1px solid var(--border);
-            position: relative;
+            box-shadow: var(--glow);
         }
 
         .panel-header {
@@ -173,34 +182,31 @@
 
         .panel-header i {
             font-size: 1.8rem;
-            color: var(--text);
         }
 
         h2 {
             font-size: 1.8rem;
             font-weight: 600;
-            color: var(--text);
         }
 
         .id-box {
             background: var(--panel-bg);
             padding: 18px;
-            border-radius: 10px;
+            border-radius: 20px;
             margin: 20px 0;
             display: flex;
             align-items: center;
             gap: 12px;
             font-size: 1.1rem;
             border: 1px solid var(--border);
+            box-shadow: var(--glow);
         }
 
         .id-box strong {
             font-weight: 600;
-            letter-spacing: 0.5px;
             flex-grow: 1;
             overflow: hidden;
             text-overflow: ellipsis;
-            color: var(--text);
         }
 
         .action-buttons {
@@ -214,7 +220,7 @@
             color: var(--button-text);
             border: none;
             padding: 14px 20px;
-            border-radius: 5px;
+            border-radius: 20px;
             cursor: pointer;
             font-weight: 600;
             transition: all 0.3s;
@@ -224,20 +230,22 @@
             gap: 10px;
             font-size: 1rem;
             flex: 1;
+            box-shadow: var(--glow);
         }
 
         .btn:hover {
-            box-shadow: 0 0 10px var(--glow);
+            box-shadow: 0 0 20px var(--glow-color);
         }
 
         .btn-outline {
             background: transparent;
             border: 2px solid var(--border);
             color: var(--text);
+            box-shadow: var(--glow);
         }
 
         .btn-outline:hover {
-            box-shadow: 0 0 10px var(--glow);
+            box-shadow: 0 0 20px var(--glow-color);
         }
 
         .btn-large {
@@ -249,18 +257,19 @@
             width: 100%;
             padding: 16px;
             border: 1px solid var(--border);
-            border-radius: 5px;
+            border-radius: 20px;
             background: var(--panel-bg);
             color: var(--text);
             font-size: 1rem;
             margin: 15px 0;
             transition: all 0.3s;
+            box-shadow: var(--glow);
         }
 
         input:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 10px var(--glow);
+            box-shadow: 0 0 20px var(--glow-color);
         }
 
         .status-pill {
@@ -268,7 +277,7 @@
             align-items: center;
             gap: 8px;
             padding: 12px 20px;
-            border-radius: 20px;
+            border-radius: 30px;
             font-size: 0.95rem;
             font-weight: 500;
             margin: 15px 0;
@@ -276,6 +285,7 @@
             justify-content: center;
             background: var(--panel-bg);
             border: 1px solid var(--border);
+            box-shadow: var(--glow);
         }
 
         .status-pill.connected {
@@ -302,13 +312,12 @@
             justify-content: space-between;
             margin-bottom: 8px;
             font-size: 0.9rem;
-            color: var(--text);
         }
 
         .progress {
             height: 12px;
             background: var(--panel-bg);
-            border-radius: 5px;
+            border-radius: 10px;
             overflow: hidden;
             border: 1px solid var(--border);
         }
@@ -316,7 +325,7 @@
         .progress-bar {
             height: 100%;
             background: var(--primary);
-            border-radius: 5px;
+            border-radius: 10px;
             transition: width 0.3s ease;
         }
 
@@ -325,19 +334,21 @@
             text-align: center;
             background: var(--panel-bg);
             padding: 20px;
-            border-radius: 10px;
+            border-radius: 20px;
             border: 1px solid var(--border);
+            box-shadow: var(--glow);
         }
 
         #qrScanner, #senderScanner {
             width: 100%;
             height: 300px;
             background: var(--panel-bg);
-            border-radius: 10px;
+            border-radius: 20px;
             margin: 15px 0;
             overflow: hidden;
             position: relative;
             border: 1px solid var(--border);
+            box-shadow: var(--glow);
         }
 
         #senderScanner {
@@ -354,28 +365,26 @@
             border: 3px solid var(--primary);
             border-radius: 12px;
             box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.5);
-            z-index: 10;
         }
 
         .file-item {
             background: var(--panel-bg);
             padding: 18px;
-            border-radius: 10px;
+            border-radius: 20px;
             margin: 15px 0;
             display: flex;
             align-items: center;
             gap: 15px;
             border: 1px solid var(--border);
+            box-shadow: var(--glow);
         }
 
         .file-icon {
             font-size: 2rem;
-            color: var(--text);
         }
 
         .file-info {
             flex-grow: 1;
-            color: var(--text);
         }
 
         .file-name {
@@ -387,7 +396,6 @@
 
         .file-size {
             font-size: 0.9rem;
-            color: var(--text);
         }
 
         .notification {
@@ -395,7 +403,7 @@
             top: 30px;
             right: 30px;
             padding: 18px 25px;
-            border-radius: 10px;
+            border-radius: 20px;
             background: var(--panel-bg);
             border: 1px solid var(--border);
             display: flex;
@@ -403,7 +411,7 @@
             gap: 15px;
             transform: translateX(150%);
             transition: transform 0.4s ease;
-            z-index: 1000;
+            box-shadow: var(--glow);
         }
 
         .notification.show {
@@ -412,7 +420,6 @@
 
         .notification i {
             font-size: 1.8rem;
-            color: var(--text);
         }
 
         .notification.success i {
@@ -423,16 +430,11 @@
             color: var(--error);
         }
 
-        .notification-content h3, .notification-content p {
-            color: var(--text);
-        }
-
         .connection-stats {
             display: flex;
             justify-content: space-between;
             margin-top: 15px;
             font-size: 0.9rem;
-            color: var(--text);
         }
 
         .stats-item {
@@ -449,36 +451,29 @@
         .footer {
             text-align: center;
             margin-top: 50px;
-            color: var(--text);
             font-size: 0.9rem;
             padding: 20px;
-            position: relative;
-            z-index: 2;
         }
 
         .drop-zone {
             border: 2px dashed var(--border);
-            border-radius: 10px;
+            border-radius: 20px;
             padding: 40px 20px;
             text-align: center;
             margin: 20px 0;
             transition: all 0.3s;
             background: var(--panel-bg);
             cursor: pointer;
+            box-shadow: var(--glow);
         }
 
         .drop-zone:hover, .drop-zone.active {
-            box-shadow: 0 0 10px var(--glow);
+            box-shadow: 0 0 20px var(--glow-color);
         }
 
         .drop-zone i {
             font-size: 3rem;
-            color: var(--text);
             margin-bottom: 15px;
-        }
-
-        .drop-zone p, .drop-zone .hint {
-            color: var(--text);
         }
 
         @media (max-width: 900px) {
@@ -501,13 +496,12 @@
             display: inline-flex;
             align-items: center;
             gap: 10px;
-            color: var(--text);
         }
 
         .spinner {
             width: 20px;
             height: 20px;
-            border: 3px solid var(--glow);
+            border: 3px solid var(--glow-color);
             border-radius: 50%;
             border-top-color: var(--primary);
             animation: spin 1s linear infinite;
@@ -526,10 +520,11 @@
             color: var(--error);
             border: 2px solid var(--error);
             margin-top: 15px;
+            box-shadow: var(--glow);
         }
 
         .disconnect-btn:hover {
-            box-shadow: 0 0 10px var(--error);
+            box-shadow: 0 0 20px var(--error);
         }
 
         .receiver-simplified {
@@ -580,7 +575,7 @@
                         Generating your unique ID...
                     </span>
                 </strong>
-                <button class="btn btn-outline animate-fade" style="--delay: 0.7s;" onclick="copyID()">
+                <button class="btn btn-outline slide-from-left" style="animation-delay: 0.7s;" onclick="copyID()">
                     <i class="fas fa-copy"></i> Copy
                 </button>
             </div>
@@ -591,10 +586,10 @@
             
             <div class="connection-controls animate-fade" id="senderConnectionControls" style="--delay: 0.9s;">
                 <div class="action-buttons">
-                    <button class="btn btn-outline animate-fade" style="--delay: 1.0s;" onclick="startSenderQRScanner()">
+                    <button class="btn btn-outline slide-from-left" style="animation-delay: 1.0s;" onclick="startSenderQRScanner()">
                         <i class="fas fa-qrcode"></i> Scan QR
                     </button>
-                    <button class="btn btn-outline animate-fade" style="--delay: 1.1s;" onclick="copyLink()">
+                    <button class="btn btn-outline slide-from-right" style="animation-delay: 1.1s;" onclick="copyLink()">
                         <i class="fas fa-link"></i> Copy Link
                     </button>
                 </div>
@@ -607,7 +602,7 @@
                 
                 <input type="text" id="peerId" placeholder="📥 Enter Receiver ID (6-digit)" maxlength="6" class="animate-fade" style="--delay: 1.3s;">
                 
-                <button class="btn btn-large animate-fade" style="--delay: 1.4s;" onclick="connectPeer()">
+                <button class="btn btn-large slide-from-bottom" style="animation-delay: 1.4s;" onclick="connectPeer()">
                     <i class="fas fa-plug"></i> Connect to Receiver
                 </button>
             </div>
@@ -626,7 +621,7 @@
             
             <div id="filePreview" style="margin: 20px 0;"></div>
             
-            <button class="btn btn-large animate-fade" style="--delay: 1.6s;" onclick="processFiles()">
+            <button class="btn btn-large slide-from-bottom" style="animation-delay: 1.6s;" onclick="processFiles()">
                 <i class="fas fa-paper-plane"></i> Send Files
             </button>
             
@@ -706,7 +701,6 @@
         let peerId = null;
         const receivedFiles = new Map();
         let videoElement = null;
-        let scannerActive = false;
         let senderScannerActive = false;
         let transferStats = { startTime: 0, bytesTransferred: 0 };
         let reconnectAttempts = 0;
@@ -725,8 +719,7 @@
                         { urls: 'stun:global.stun.twilio.com:3478' },
                         { urls: 'turn:numb.viagenie.ca', username: 'webrtc@live.com', credential: 'muazkh' }
                     ]
-                },
-                debug: 0
+                }
             });
 
             peer.on('open', id => {
@@ -819,9 +812,7 @@
 
         function vibrateDevice() {
             try {
-                if (navigator.vibrate) {
-                    navigator.vibrate([100, 50, 100]);
-                }
+                if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
             } catch (e) {
                 console.log("Vibration not supported");
             }
