@@ -3,19 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <link rel="manifest" href="./manifest.json">
     <title>🚀AirDropX (Android ↔ iPhone Supported)</title>
-
-     <script>
-      
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("./service-worker.js", { scope: "./" })
-      .then((reg) => console.log("Service Worker Registered!", reg))
-      .catch((err) => console.log("Service Worker Registration Failed!", err));
-  }
-
-     </script>
     <script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/davidshimjs-qrcodejs@0.0.2/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
@@ -183,7 +171,7 @@
             color: #002850;
             border: none;
             padding: 14px 20px;
-            border-radius: 12px;
+            border-radius: 50px; /* More rounded buttons */
             cursor: pointer;
             font-weight: 600;
             transition: all 0.3s;
@@ -216,13 +204,14 @@
         .btn-large {
             padding: 16px 24px;
             font-size: 1.1rem;
+            border-radius: 50px; /* More rounded buttons */
         }
 
         input {
             width: 100%;
             padding: 16px;
             border: 2px solid var(--glass-border);
-            border-radius: 12px;
+            border-radius: 50px; /* More rounded input */
             background: rgba(0, 30, 60, 0.3);
             color: white;
             font-size: 1rem;
@@ -637,6 +626,7 @@
             color: var(--error);
             border: 2px solid var(--error);
             margin-top: 15px;
+            border-radius: 50px; /* More rounded disconnect button */
         }
         
         .disconnect-btn:hover {
@@ -813,46 +803,10 @@
         </div>
     </div>
     
-    
-        <!--          _____                    _____                    _____                    _____                    _____                    _____                    _____          
-         /\    \                  /\    \                  /\    \                  /\    \                  /\    \                  /\    \                  /\    \         
-        /::\    \                /::\    \                /::\____\                /::\    \                /::\    \                /::\    \                /::\    \        
-       /::::\    \              /::::\    \              /::::|   |               /::::\    \              /::::\    \              /::::\    \              /::::\    \       
-      /::::::\    \            /::::::\    \            /:::::|   |              /::::::\    \            /::::::\    \            /::::::\    \            /::::::\    \      
-     /:::/\:::\    \          /:::/\:::\    \          /::::::|   |             /:::/\:::\    \          /:::/\:::\    \          /:::/\:::\    \          /:::/\:::\    \     
-    /:::/__\:::\    \        /:::/__\:::\    \        /:::/|::|   |            /:::/  \:::\    \        /:::/__\:::\    \        /:::/__\:::\    \        /:::/__\:::\    \    
-    \:::\   \:::\    \      /::::\   \:::\    \      /:::/ |::|   |           /:::/    \:::\    \      /::::\   \:::\    \      /::::\   \:::\    \      /::::\   \:::\    \   
-  ___\:::\   \:::\    \    /::::::\   \:::\    \    /:::/  |::|   | _____    /:::/    / \:::\    \    /::::::\   \:::\    \    /::::::\   \:::\    \    /::::::\   \:::\    \  
- /\   \:::\   \:::\    \  /:::/\:::\   \:::\    \  /:::/   |::|   |/\    \  /:::/    /   \:::\ ___\  /:::/\:::\   \:::\    \  /:::/\:::\   \:::\    \  /:::/\:::\   \:::\____\ 
-/::\   \:::\   \:::\____\/:::/  \:::\   \:::\____\/:: /    |::|   /::\____\/:::/____/     \:::|    |/:::/__\:::\   \:::\____\/:::/__\:::\   \:::\____\/:::/  \:::\   \:::|    |
-\:::\   \:::\   \::/    /\::/    \:::\  /:::/    /\::/    /|::|  /:::/    /\:::\    \     /:::|____|\:::\   \:::\   \::/    /\:::\   \:::\   \::/    /\::/    \:::\  /:::|____|
- \:::\   \:::\   \/____/  \/____/ \:::\/:::/    /  \/____/ |::| /:::/    /  \:::\    \   /:::/    /  \:::\   \:::\   \/____/  \:::\   \:::\   \/____/  \/_____/\:::\/:::/    / 
-  \:::\   \:::\    \               \::::::/    /           |::|/:::/    /    \:::\    \ /:::/    /    \:::\   \:::\    \       \:::\   \:::\    \               \::::::/    /  
-   \:::\   \:::\____\               \::::/    /            |::::::/    /      \:::\    /:::/    /      \:::\   \:::\____\       \:::\   \:::\____\               \::::/    /   
-    \:::\  /:::/    /               /:::/    /             |:::::/    /        \:::\  /:::/    /        \:::\   \::/    /        \:::\   \::/    /                \::/____/    
-     \:::\/:::/    /               /:::/    /              |::::/    /          \:::\/:::/    /          \:::\   \/____/          \:::\   \/____/                  ~~          
-      \::::::/    /               /:::/    /               /:::/    /            \::::::/    /            \:::\    \               \:::\    \                                  
-       \::::/    /               /:::/    /               /:::/    /              \::::/    /              \:::\____\               \:::\____\                                 
-        \::/    /                \::/    /                \::/    /                \::/____/                \::/    /                \::/    /                                 
-         \/____/                  \/____/                  \/____/                  ~~                       \/____/                  \/____/                                  
-                                                                                                                                                                              
- -->
-  <footer style="background: transparent; color: transparent; text-align: center; padding: 20px; font-size: 14px; border-top: 2px solid #004d99;">
-    <p style="margin: 0; font-size: 18px; font-weight: bold;">🚀 AirDropX</p>
-    <p style="margin: 5px 0; color: #bbbbbb;">A high-speed, secure, and cross-platform file-sharing system.</p>
-    <p style="margin: 5px 0; color: #bbbbbb;">No servers, no limits—just fast and private transfers.</p>
-    <p style="margin: 5px 0; font-weight: bold; color: var(--primary);">🔒 Secure | 🔥 Fast | 📡 Cross-Platform</p>
-    <p style="margin: 5px 0; color: #bbbbbb;">Supports file transfers between **Android, iPhone, Windows, Mac, and Linux** seamlessly.</p>
-    <p style="margin: 5px 0; color: #bbbbbb;">Transfer files between **Android ↔ iPhone**, **Windows ↔ iPhone**, and **Android ↔ Windows** effortlessly.</p>
-    <p style="margin: 5px 0; color: #bbbbbb;">💡 **Works without Internet!** If both devices are on the same Wi-Fi network, files transfer directly at maximum speed.</p>
-    <p style="margin: 10px 0; font-weight: bold; color: var(--primary);">💻📱 Any Device, Any Platform, Anywhere</p>
-    <p style="margin: 5px 0; color: #bbbbbb;">Made with ❤️ by Sandeep</p>
-  </footer>
-
-     
-      <!-- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- -->
-     
-
+    <div class="footer">
+        <p>🚀 AirDropX - Secure, Fast & Cross-Platform File Sharing</p>
+        <p>Supports Android ↔ iPhone transfers without installation</p>
+    </div>
     
     <div class="notification" id="notification">
         <i class="fas fa-check-circle"></i>
@@ -867,6 +821,7 @@
         const CHUNK_SIZE = 16 * 1024 * 1024; // 16MB chunks for large files
         const MAX_PARALLEL_CHUNKS = 10;
         const AUTO_RECONNECT_DELAY = 3000; // 3 seconds
+        const MAX_RECONNECT_ATTEMPTS = 5;
         
         // Global variables
         let peer = null;
@@ -874,7 +829,6 @@
         let peerId = null;
         const receivedFiles = new Map();
         let videoElement = null;
-        let scannerActive = false;
         let senderScannerActive = false;
         let transferStats = {
             startTime: 0,
@@ -882,6 +836,7 @@
         };
         let reconnectAttempts = 0;
         let idGenerationAttempts = 0;
+        let connectionActive = false;
         
         // Generate short 6-digit ID
         function generateShortId() {
@@ -890,9 +845,24 @@
         
         // Initialize Peer
         function initializePeer() {
-            const shortId = generateShortId();
+            // Try to get saved ID from localStorage
+            let savedPeerId = localStorage.getItem('airdropx-peer-id');
             
-            peer = new Peer(shortId, {
+            // If no saved ID, generate a new one
+            if (!savedPeerId) {
+                savedPeerId = generateShortId();
+                localStorage.setItem('airdropx-peer-id', savedPeerId);
+            }
+            
+            // Show loading state
+            document.getElementById('myId').innerHTML = `
+                <span class="id-generating">
+                    <span class="spinner"></span>
+                    Loading your ID...
+                </span>
+            `;
+            
+            peer = new Peer(savedPeerId, {
                 config: {
                     iceServers: [
                         { urls: 'stun:stun.l.google.com:19302' },
@@ -921,15 +891,23 @@
                     document.getElementById('peerId').value = connectTo;
                     setTimeout(() => connectPeer(), 500);
                 }
+                
+                // Show success notification
+                showNotification('Your ID is ready!', 'success');
             });
 
             peer.on('error', err => {
                 console.error('Peer Error:', err);
                 
                 // Handle ID collision by generating a new ID
-                if (err.type === 'unavailable-id' && idGenerationAttempts < 5) {
+                if (err.type === 'unavailable-id' && idGenerationAttempts < MAX_RECONNECT_ATTEMPTS) {
                     idGenerationAttempts++;
-                    setTimeout(initializePeer, 500);
+                    
+                    // Generate new ID and save to localStorage
+                    const newId = generateShortId();
+                    localStorage.setItem('airdropx-peer-id', newId);
+                    
+                    setTimeout(initializePeer, AUTO_RECONNECT_DELAY);
                 } else {
                     showNotification(`Error: ${err.type}`, 'error');
                     updateStatusPill('connectionStatusPill', `Error: ${err.type}`, 'error');
@@ -949,8 +927,10 @@
             });
             
             peer.on('disconnected', () => {
-                updateStatusPill('connectionStatusPill', 'Connection lost. Reconnecting...', 'disconnected');
-                setTimeout(initializePeer, AUTO_RECONNECT_DELAY);
+                if (connectionActive) {
+                    updateStatusPill('connectionStatusPill', 'Connection lost. Reconnecting...', 'disconnected');
+                    setTimeout(initializePeer, AUTO_RECONNECT_DELAY);
+                }
             });
         }
         
@@ -965,6 +945,11 @@
             
             if (connectTo.length !== 6) {
                 showNotification('ID must be 6 digits', 'error');
+                return;
+            }
+            
+            if (connectTo === peerId) {
+                showNotification('Cannot connect to yourself', 'error');
                 return;
             }
             
@@ -989,15 +974,19 @@
                 toggleConnectionControls(false);
                 
                 reconnectAttempts++;
-                if (reconnectAttempts <= 3) {
+                if (reconnectAttempts <= MAX_RECONNECT_ATTEMPTS) {
                     setTimeout(() => connectPeer(), AUTO_RECONNECT_DELAY);
+                } else {
+                    showNotification('Failed to connect after multiple attempts', 'error');
                 }
             });
         }
         
         function setupConnection(connection) {
+            connectionActive = true;
             connection.on('data', handleIncomingData);
             connection.on('close', () => {
+                connectionActive = false;
                 showNotification('Connection closed', 'error');
                 updateStatusPill('connectionStatusPill', 'Disconnected', 'disconnected');
                 updateStatusPill('receiverStatusPill', 'Disconnected', 'disconnected');
@@ -1043,6 +1032,8 @@
         
         // Disconnect function
         function disconnectPeer() {
+            connectionActive = false;
+            
             if (conn) {
                 conn.close();
                 conn = null;
